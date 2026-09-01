@@ -1,0 +1,339 @@
+/**
+ * Billing System - Custom CSS
+ * All styles for the billing application
+ */
+
+/* ============================================================
+   GLOBAL STYLES
+   ============================================================ */
+
+/* Search Results */
+.search-results-container {
+    position: absolute;
+    z-index: 9999;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
+    margin-top: 2px;
+}
+
+.search-results-container .search-result-item {
+    cursor: pointer;
+    padding: 10px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s;
+}
+
+.search-results-container .search-result-item:hover {
+    background: #e8f4fd;
+}
+
+.search-results-container .search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-results-container .search-result-item .item-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.search-results-container .search-result-item .item-details {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+.search-results-container .no-results {
+    padding: 15px;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Position Relative for Search */
+.position-relative {
+    position: relative !important;
+}
+
+/* ============================================================
+   CUSTOMER STYLES
+   ============================================================ */
+
+.customer-selected {
+    border: 2px solid #28a745 !important;
+    background: #f0fff4 !important;
+}
+
+.customer-info-display {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid #28a745;
+}
+
+/* ============================================================
+   PRODUCT STYLES
+   ============================================================ */
+
+.product-selected {
+    border: 2px solid #007bff !important;
+    background: #f0f8ff !important;
+}
+
+.product-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s;
+}
+
+.product-item:hover {
+    border-color: #007bff;
+    background: #f0f8ff;
+}
+
+.product-item .product-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.product-list-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* ============================================================
+   STEP INDICATOR
+   ============================================================ */
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.step-indicator .step {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+}
+
+.step-indicator .step .step-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.step-indicator .step.active .step-number {
+    background: #007bff;
+    color: white;
+}
+
+.step-indicator .step.completed .step-number {
+    background: #28a745;
+    color: white;
+}
+
+.step-indicator .step-line {
+    width: 50px;
+    height: 2px;
+    background: #dee2e6;
+    margin: 0 10px;
+    transition: all 0.3s;
+}
+
+.step-indicator .step-line.active {
+    background: #007bff;
+}
+
+.step-indicator .step-line.completed {
+    background: #28a745;
+}
+
+/* ============================================================
+   SECTION HIDDEN
+   ============================================================ */
+
+.section-hidden {
+    display: none !important;
+}
+
+/* ============================================================
+   STEP 4 PRODUCTS
+   ============================================================ */
+
+#step4Card .product-item {
+    background: #fff;
+    border-color: #dee2e6;
+}
+
+#step4Card .product-item:hover {
+    background: #f8f9fa;
+}
+
+#step4Card .product-list-container {
+    max-height: 300px;
+}
+
+/* ============================================================
+   INVOICE STYLES
+   ============================================================ */
+
+.invoice-container .table-bordered td,
+.invoice-container .table-bordered th {
+    border: 1px solid #000;
+}
+
+.invoice-container .table-success {
+    background: #d1e7dd;
+}
+
+/* ============================================================
+   DISCOUNT INPUT
+   ============================================================ */
+
+.discount-input {
+    width: 80px;
+}
+
+/* ============================================================
+   CUSTOMER DISPLAY
+   ============================================================ */
+
+#customerDisplay .customer-info-display {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    border-left: 4px solid #28a745;
+}
+
+/* ============================================================
+   PRODUCT FORM
+   ============================================================ */
+
+#productForm .alert {
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+#productForm .form-control {
+    border-radius: 6px;
+}
+
+#productForm .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#productForm .btn {
+    border-radius: 6px;
+}
+
+/* ============================================================
+   MODAL STYLES
+   ============================================================ */
+
+.modal .search-results-container {
+    z-index: 10000;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .step-indicator {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .step-indicator .step-line {
+        width: 2px;
+        height: 20px;
+        margin: 5px 0;
+    }
+    
+    .product-item .product-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .total-amount {
+        font-size: 1.2rem;
+    }
+}
+
+/* ============================================================
+   INVOICE HEADER IMAGE
+   ============================================================ */
+
+.invoice-header-image {
+    max-height: 80px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+@media print {
+    .invoice-header-image {
+        max-height: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .invoice-header-image {
+        max-height: 50px;
+    }
+}
+
+/* ============================================================
+   INVOICE PRINT STYLES
+   ============================================================ */
+
+.invoice-page {
+    background: #fff;
+}
+
+@media print {
+    .invoice-page {
+        padding: 10px !important;
+        page-break-after: always;
+    }
+    
+    .invoice-page .border {
+        border-color: #000 !important;
+    }
+    
+    .invoice-page table {
+        border-collapse: collapse !important;
+    }
+    
+    .invoice-page th,
+    .invoice-page td {
+        border-color: #000 !important;
+    }
+}
