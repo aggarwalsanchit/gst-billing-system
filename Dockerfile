@@ -24,14 +24,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy only composer files first (better caching)
-COPY composer.json composer.lock ./
-
-# Install dependencies (including dev for now)
-RUN composer install --no-interaction --optimize-autoloader
-
-# Copy the rest of the application
+# Copy ALL files at once
 COPY . .
+
+# Install dependencies
+RUN composer install --no-interaction --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -41,7 +38,7 @@ RUN chown -R www-data:www-data /var/www/html \
 # Generate key
 RUN php artisan key:generate
 
-# Configure Apache to serve from public directory
+# Configure Apache
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
