@@ -27,8 +27,10 @@ WORKDIR /var/www/html
 # Copy all files
 COPY . .
 
-# Create .env file from .env.example if it exists, or create a default one
-RUN if [ -f .env.example ]; then cp .env.example .env; else echo "APP_ENV=production" > .env && echo "APP_DEBUG=false" >> .env; fi
+# ===== FIX: Create .env with APP_KEY =====
+RUN echo "APP_ENV=production" > .env && \
+    echo "APP_DEBUG=false" >> .env && \
+    echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
 
 # Create all required directories
 RUN mkdir -p bootstrap/cache \
@@ -48,11 +50,10 @@ RUN composer run-script post-autoload-dump
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Generate key - but don't fail if .env doesn't exist, or use APP_KEY from env
-RUN php artisan key:generate --force || echo "Key generation skipped, using env APP_KEY"
+# Generate key
+RUN php artisan key:generate --force
 
 # Configure Apache
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
