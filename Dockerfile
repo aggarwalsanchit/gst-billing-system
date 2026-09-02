@@ -27,7 +27,10 @@ WORKDIR /var/www/html
 # Copy all files
 COPY . .
 
-# ===== CRITICAL: Create all required directories BEFORE composer install =====
+# Create .env file from .env.example if it exists, or create a default one
+RUN if [ -f .env.example ]; then cp .env.example .env; else echo "APP_ENV=production" > .env && echo "APP_DEBUG=false" >> .env; fi
+
+# Create all required directories
 RUN mkdir -p bootstrap/cache \
     && mkdir -p storage/framework/views \
     && mkdir -p storage/framework/sessions \
@@ -36,19 +39,20 @@ RUN mkdir -p bootstrap/cache \
     && chmod -R 777 bootstrap/cache \
     && chmod -R 777 storage
 
-# Install dependencies - but SKIP scripts that require Laravel
+# Install dependencies
 RUN composer install --no-interaction --optimize-autoloader --ignore-platform-reqs --no-scripts
 
-# Now run the scripts manually after directories are created
+# Run the post-autoload-dump script
 RUN composer run-script post-autoload-dump
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Generate key
-RUN php artisan key:generate
+# Generate key - but don't fail if .env doesn't exist, or use APP_KEY from env
+RUN php artisan key:generate --force || echo "Key generation skipped, using env APP_KEY"
 
 # Configure Apache
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
