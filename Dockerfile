@@ -27,8 +27,13 @@ WORKDIR /var/www/html
 # Copy all files
 COPY . .
 
-# Install dependencies
-RUN composer install --no-interaction --optimize-autoloader
+# Create bootstrap/cache directory if it doesn't exist
+RUN mkdir -p bootstrap/cache \
+    && chmod -R 775 bootstrap/cache \
+    && chmod -R 775 storage
+
+# Install dependencies with ignore platform reqs
+RUN composer install --no-interaction --optimize-autoloader --ignore-platform-reqs
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
