@@ -27,13 +27,20 @@ WORKDIR /var/www/html
 # Copy all files
 COPY . .
 
-# Create bootstrap/cache directory if it doesn't exist
+# ===== CRITICAL: Create all required directories BEFORE composer install =====
 RUN mkdir -p bootstrap/cache \
-    && chmod -R 775 bootstrap/cache \
-    && chmod -R 775 storage
+    && mkdir -p storage/framework/views \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/cache/data \
+    && chmod -R 777 bootstrap/cache \
+    && chmod -R 777 storage
 
-# Install dependencies with ignore platform reqs
-RUN composer install --no-interaction --optimize-autoloader --ignore-platform-reqs
+# Install dependencies - but SKIP scripts that require Laravel
+RUN composer install --no-interaction --optimize-autoloader --ignore-platform-reqs --no-scripts
+
+# Now run the scripts manually after directories are created
+RUN composer run-script post-autoload-dump
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
