@@ -90,3 +90,20 @@ Route::get('/stickers', [StickerController::class, 'index'])->name('stickers.ind
 Route::post('/stickers/generate', [StickerController::class, 'generate'])->name('stickers.generate');
 Route::get('/stickers/print', [StickerController::class, 'print'])->name('stickers.print');
 Route::get('/stickers/export-pdf', [StickerController::class, 'exportPdf'])->name('stickers.export-pdf');
+
+// ===== KEEP-ALIVE ROUTE (Required!) =====
+Route::get('/keep-alive', function () {
+    try {
+        DB::select('SELECT 1');
+        return response()->json([
+            'status' => 'alive',
+            'database' => 'connected',
+            'time' => now()->toDateTimeString()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
