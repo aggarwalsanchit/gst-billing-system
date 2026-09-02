@@ -25,6 +25,22 @@ services:
       - key: CACHE_DRIVER
         value: file
 
+  # ===== CRON JOB FOR DATABASE KEEP-ALIVE =====
+  - type: cron
+    name: db-keep-alive
+    env: php
+    schedule: "*/5 * * * *"
+    command: php artisan db:keep-alive
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+
 databases:
   - name: billing-db
     plan: free
