@@ -24,7 +24,7 @@
             min-height: 297mm;
             max-height: 297mm;
             margin: 0 auto;
-            padding: 0;
+            padding: 10mm 0;  /* 10mm top and bottom */
             background: #fff;
             overflow: hidden;
             display: flex;
@@ -34,42 +34,46 @@
         
         /* ===== STICKER GRID ===== */
         .sticker-grid {
-            display: grid;
-            grid-template-rows: repeat(13, 21.2mm);
-            grid-template-columns: repeat(5, 38.1mm);
-            gap: 0;
-            width: 100%;
-            height: calc(13 * 21.2mm);
-            padding: 0;
-            background: #fff;
-            margin: 10.6mm auto;
+            display: grid !important;
+            grid-template-columns: repeat(5, 38.1mm) !important;
+            grid-template-rows: repeat(13, 21.2mm) !important;
+            gap: 2mm 3.5mm !important;
+            width: fit-content !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            background: #fff !important;
         }
         
-        /* ===== INDIVIDUAL STICKER - NO BORDER ===== */
+        /* ===== INDIVIDUAL STICKER ===== */
         .sticker-item {
-            width: 38.1mm;
-            height: 21.2mm;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 12px;
-            font-weight: bold;
-            line-height: 1.3;
-            word-break: break-word;
-            background: #fff;
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            white-space: pre-wrap;
-            padding: 2px 3px;
-            overflow: hidden;
+            width: 38.1mm !important;
+            height: 21.2mm !important;
+            min-width: 38.1mm !important;
+            min-height: 21.2mm !important;
+            max-width: 38.1mm !important;
+            max-height: 21.2mm !important;
+            border: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            font-size: 14px !important;
+            font-weight: bold !important;
+            line-height: 1.3 !important;
+            word-break: break-word !important;
+            background: #fff !important;
+            font-family: 'Arial', 'Helvetica', sans-serif !important;
+            white-space: pre-wrap !important;
+            padding: 2px 2px !important;
+            overflow: hidden !important;
         }
         
         .sticker-item.empty {
-            background: #f9f9f9;
-            color: #ddd;
-            font-weight: normal;
-            font-size: 10px;
+            background: #f9f9f9 !important;
+            color: #ddd !important;
+            font-weight: normal !important;
+            font-size: 12px !important;
         }
         
         /* ===== PRINT BUTTONS - SCREEN ONLY ===== */
@@ -135,33 +139,43 @@
             }
             
             .page {
-                width: 210mm !important;
-                min-height: 297mm !important;
-                max-height: 297mm !important;
+                width: 100% !important;
+                min-height: 100% !important;
+                max-height: 100% !important;
                 margin: 0 !important;
-                padding: 0 !important;
+                padding: 10mm 0 !important;  /* 10mm top and bottom in print */
                 page-break-after: avoid !important;
-                overflow: hidden !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
+                overflow: visible !important;
+                display: block !important;
             }
             
             .sticker-grid {
-                width: 100% !important;
-                height: calc(13 * 21.2mm) !important;
+                display: grid !important;
+                grid-template-columns: repeat(5, 38.1mm) !important;
+                grid-template-rows: repeat(13, 21.2mm) !important;
+                gap: 2mm 3.5mm !important;
+                width: fit-content !important;
+                margin: 0 auto !important;
                 padding: 0 !important;
-                gap: 0 !important;
-                margin: 10.6mm auto !important;
+                background: #fff !important;
             }
             
             .sticker-item {
                 width: 38.1mm !important;
                 height: 21.2mm !important;
+                min-width: 38.1mm !important;
+                min-height: 21.2mm !important;
+                max-width: 38.1mm !important;
+                max-height: 21.2mm !important;
                 border: none !important;
-                font-size: 12px !important;
-                padding: 2px 3px !important;
+                font-size: 14px !important;
+                padding: 2px 2px !important;
                 line-height: 1.3 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                background: #fff !important;
             }
             
             .sticker-item.empty {
@@ -190,8 +204,8 @@
     <div class="info">
         <strong>Sticker Size:</strong> 38.1mm × 21.2mm &nbsp;|&nbsp; 
         <strong>Grid:</strong> 13 Rows × 5 Columns = 65 Stickers &nbsp;|&nbsp; 
-        <strong>Page:</strong> A4 (210mm × 297mm) &nbsp;|&nbsp; 
-        <strong>Border:</strong> None
+        <strong>Font Size:</strong> 14px &nbsp;|&nbsp; 
+        <strong>Spacing:</strong> 10mm Top & Bottom
     </div>
 </div>
 
