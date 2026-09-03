@@ -37,7 +37,7 @@
             display: grid !important;
             grid-template-columns: repeat(5, 38.1mm) !important;
             grid-template-rows: repeat(13, 21.2mm) !important;
-            gap: 0.5mm 1mm !important;  /* Reduced row gap and column gap */
+            gap: 0.2mm 1mm !important;  /* Reduced row gap and column gap */
             width: fit-content !important;
             max-width: 100% !important;
             margin: 0 auto !important;
