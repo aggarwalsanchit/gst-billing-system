@@ -9,50 +9,59 @@
             padding: 0;
             box-sizing: border-box;
         }
+        
         body {
-            font-family: 'Courier New', monospace;
+            font-family: 'Arial', 'Helvetica', sans-serif;
             background: #fff;
             padding: 0;
             margin: 0;
             width: 100%;
-            min-height: 100vh;
         }
         
+        /* ===== PAGE - A4 ===== */
         .page {
-            width: 100%;
-            max-width: 100%;
-            margin: 0;
+            width: 210mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            margin: 0 auto;
             padding: 0;
             background: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         
-        /* ===== 13 ROWS x 5 COLUMNS - FULL A4 ===== */
+        /* ===== STICKER GRID ===== */
         .sticker-grid {
             display: grid;
-            grid-template-rows: repeat(13, 1fr);
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.5px;
+            grid-template-rows: repeat(13, 21.2mm);
+            grid-template-columns: repeat(5, 38.1mm);
+            gap: 0;
             width: 100%;
-            height: 100vh;
-            min-height: 100vh;
+            height: calc(13 * 21.2mm);
+            padding: 0;
             background: #fff;
-            padding: 2px;
+            margin: 10.6mm auto;
         }
         
+        /* ===== INDIVIDUAL STICKER - NO BORDER ===== */
         .sticker-item {
-            border: 1px solid #000;
-            padding: 2px 3px;
+            width: 38.1mm;
+            height: 21.2mm;
+            border: none;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 10px;
+            font-size: 12px;
+            font-weight: bold;
             line-height: 1.3;
             word-break: break-word;
             background: #fff;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+            font-family: 'Arial', 'Helvetica', sans-serif;
             white-space: pre-wrap;
+            padding: 2px 3px;
             overflow: hidden;
         }
         
@@ -60,15 +69,7 @@
             background: #f9f9f9;
             color: #ddd;
             font-weight: normal;
-        }
-        
-        /* ===== HEADER & FOOTER - ONLY FOR SCREEN ===== */
-        .sticker-header {
-            display: none;
-        }
-        
-        .sticker-footer {
-            display: none;
+            font-size: 10px;
         }
         
         /* ===== PRINT BUTTONS - SCREEN ONLY ===== */
@@ -77,6 +78,9 @@
             padding: 15px 0;
             background: #f8f9fa;
             border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .no-print .btn {
@@ -102,19 +106,27 @@
             background: #5a6268;
         }
         
+        .no-print .info {
+            margin-top: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .no-print .info strong {
+            color: #333;
+        }
+        
         /* ===== PRINT STYLES ===== */
         @media print {
             * {
                 margin: 0 !important;
                 padding: 0 !important;
-                box-sizing: border-box !important;
             }
             
             html, body {
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 100% !important;
-                height: 100% !important;
                 background: #fff !important;
             }
             
@@ -123,33 +135,38 @@
             }
             
             .page {
+                width: 210mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 100% !important;
-                height: 100vh !important;
-                min-height: 100vh !important;
                 page-break-after: avoid !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
             }
             
             .sticker-grid {
                 width: 100% !important;
-                height: 100vh !important;
-                min-height: 100vh !important;
-                gap: 1px !important;
-                padding: 1px !important;
-                border: none !important;
+                height: calc(13 * 21.2mm) !important;
+                padding: 0 !important;
+                gap: 0 !important;
+                margin: 10.6mm auto !important;
             }
             
             .sticker-item {
-                border: 1px solid #000 !important;
-                font-size: 9px !important;
-                padding: 2px 2px !important;
-                min-height: auto !important;
+                width: 38.1mm !important;
+                height: 21.2mm !important;
+                border: none !important;
+                font-size: 12px !important;
+                padding: 2px 3px !important;
+                line-height: 1.3 !important;
             }
             
             .sticker-item.empty {
                 background: #f9f9f9 !important;
-                border-color: #ccc !important;
+                color: #ddd !important;
             }
         }
         
@@ -162,6 +179,7 @@
 </head>
 <body>
 
+<!-- ===== PRINT BUTTONS ===== -->
 <div class="no-print">
     <button class="btn" onclick="window.print()">
         <i class="fas fa-print"></i> Print Stickers
@@ -169,11 +187,15 @@
     <button class="btn btn-secondary" onclick="window.location.href='{{ route('stickers.index') }}'">
         <i class="fas fa-arrow-left"></i> Back to Edit
     </button>
-    <p style="margin-top: 8px; color: #666; font-size: 12px;">
-        <strong>Note:</strong> Print will use full A4 page with NO margins.
-    </p>
+    <div class="info">
+        <strong>Sticker Size:</strong> 38.1mm × 21.2mm &nbsp;|&nbsp; 
+        <strong>Grid:</strong> 13 Rows × 5 Columns = 65 Stickers &nbsp;|&nbsp; 
+        <strong>Page:</strong> A4 (210mm × 297mm) &nbsp;|&nbsp; 
+        <strong>Border:</strong> None
+    </div>
 </div>
 
+<!-- ===== A4 PAGE ===== -->
 <div class="page">
     <div class="sticker-grid">
         @php

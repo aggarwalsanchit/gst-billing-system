@@ -142,8 +142,8 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        font-size: 7px;
-        font-family: 'Courier New', monospace;
+        font-size: 9px;
+        font-family: Arial, sans-serif;
         background: #fafafa;
         line-height: 1.2;
         word-break: break-word;
@@ -255,6 +255,14 @@
         font-style: italic;
     }
     
+    .sticker-dimensions {
+        font-size: 12px;
+        color: #666;
+        background: #f0f0f0;
+        padding: 5px 12px;
+        border-radius: 4px;
+    }
+    
     @media (max-width: 1200px) {
         .sticker-builder { grid-template-columns: 1fr; }
         .preview-container { position: static; }
@@ -264,21 +272,27 @@
         .sticker-item-row textarea { min-width: 100%; order: 2; }
         .sticker-item-row .row-controls { order: 3; width: 100%; }
         .sticker-item-row .index { order: 1; }
-        .preview-item { min-height: 35px; font-size: 5px; }
+        .preview-item { min-height: 35px; font-size: 7px; }
     }
 </style>
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5><i class="fas fa-tags"></i> Sticker Label Generator (13 Rows x 5 Columns)</h5>
-        <span class="sticker-count-badge valid" id="countBadge">
-            <span id="stickerCount">0</span> / 65 Stickers
-        </span>
+        <h5><i class="fas fa-tags"></i> Sticker Label Generator</h5>
+        <div>
+            <span class="sticker-dimensions me-2">
+                <i class="fas fa-ruler"></i> 38.1mm × 21.2mm
+            </span>
+            <span class="sticker-count-badge valid" id="countBadge">
+                <span id="stickerCount">0</span> / 65 Stickers
+            </span>
+        </div>
     </div>
     <div class="card-body">
         <div class="alert alert-info">
             <i class="fas fa-info-circle"></i> 
             <strong>13 rows × 5 columns = 65 stickers</strong> &nbsp;|&nbsp;
+            Each sticker: <strong>38.1mm × 21.2mm</strong> &nbsp;|&nbsp;
             Press <kbd>Shift + Enter</kbd> to add new line in text.
         </div>
 
@@ -317,7 +331,7 @@
                     <div class="preview-container">
                         <div class="preview-label">
                             <i class="fas fa-eye"></i> Live Preview 
-                            <small>(13 Rows x 5 Columns)</small>
+                            <small>(13 Rows × 5 Columns)</small>
                             <span class="total-stickers-info" id="totalStickersInfo">Total: 0 stickers</span>
                         </div>
                         <div class="preview-grid" id="previewGrid">
@@ -341,13 +355,11 @@
     let stickers = [];
     let nextId = 0;
 
-    // ========== INITIALIZE ==========
     function init() {
         addSticker();
         renderPreview();
     }
 
-    // ========== ADD STICKER ==========
     function addSticker() {
         if (stickers.length >= 65) {
             alert('Maximum 65 sticker rows allowed!');
@@ -365,7 +377,6 @@
         updateStats();
     }
 
-    // ========== REMOVE STICKER ==========
     function removeSticker(id) {
         if (stickers.length <= 1) {
             alert('You need at least one sticker row!');
@@ -380,7 +391,6 @@
         updateStats();
     }
 
-    // ========== UPDATE STICKER ==========
     function updateSticker(id, field, value) {
         const sticker = stickers.find(s => s.id === id);
         if (sticker) {
@@ -390,7 +400,6 @@
         }
     }
 
-    // ========== RENDER STICKER LIST ==========
     function renderStickerList() {
         const container = document.getElementById('stickerList');
         container.innerHTML = '';
@@ -425,12 +434,10 @@
         document.getElementById('addMoreBtn').disabled = stickers.length >= 65;
     }
 
-    // ========== RENDER PREVIEW ==========
     function renderPreview() {
         const grid = document.getElementById('previewGrid');
         grid.innerHTML = '';
         
-        // Build expanded sticker list based on quantity
         let expandedStickers = [];
         stickers.forEach(sticker => {
             const qty = parseInt(sticker.qty) || 1;
@@ -441,7 +448,6 @@
             }
         });
         
-        // Fill all 65 slots
         for (let i = 0; i < 65; i++) {
             const div = document.createElement('div');
             
@@ -451,7 +457,6 @@
                 
                 if (text) {
                     div.className = 'preview-item';
-                    // Replace newlines with <br> for display
                     div.innerHTML = text.replace(/\n/g, '<br>');
                 } else {
                     div.className = 'preview-item empty';
@@ -465,7 +470,6 @@
             grid.appendChild(div);
         }
         
-        // Update total stickers info
         document.getElementById('totalStickersInfo').textContent = 
             `Total: ${expandedStickers.length} stickers`;
         
@@ -474,25 +478,22 @@
         document.getElementById('previewCount').textContent = expandedStickers.length;
     }
 
-    // ========== UPDATE STATS ==========
     function updateStats() {
         let totalQty = 0;
         stickers.forEach(s => {
             totalQty += parseInt(s.qty) || 1;
         });
         
-        const total = stickers.length;
-        document.getElementById('stickerCount').textContent = total;
+        document.getElementById('stickerCount').textContent = stickers.length;
         
         const badge = document.getElementById('countBadge');
-        if (total <= 65) {
+        if (stickers.length <= 65) {
             badge.className = 'sticker-count-badge valid';
         } else {
             badge.className = 'sticker-count-badge invalid';
         }
     }
 
-    // ========== CLEAR ALL ==========
     function clearAll() {
         if (!confirm('Clear all stickers?')) return;
         stickers = [];
@@ -503,7 +504,6 @@
         updateStats();
     }
 
-    // ========== LOAD SAMPLE DATA ==========
     function addSampleData() {
         if (stickers.length > 1) {
             if (!confirm('This will replace all current stickers. Continue?')) return;
@@ -566,7 +566,6 @@
         updateStats();
     }
 
-    // ========== UTILITY ==========
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -574,7 +573,6 @@
         return div.innerHTML;
     }
 
-    // ========== FORM SUBMIT ==========
     document.getElementById('stickerForm').addEventListener('submit', function(e) {
         if (stickers.length === 0) {
             e.preventDefault();
@@ -582,7 +580,6 @@
             return;
         }
         
-        // Calculate total quantity
         let totalQty = 0;
         stickers.forEach(s => {
             totalQty += parseInt(s.qty) || 1;
@@ -609,21 +606,6 @@
         });
     });
 
-    // ========== KEYBOARD SHORTCUTS ==========
-    document.addEventListener('keydown', function(e) {
-        // Ctrl+Shift+A = Add sticker
-        if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-            e.preventDefault();
-            addSticker();
-        }
-        // Ctrl+Shift+Delete = Clear all
-        if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
-            e.preventDefault();
-            clearAll();
-        }
-    });
-
-    // ========== INIT ==========
     document.addEventListener('DOMContentLoaded', init);
 </script>
 @endpush
