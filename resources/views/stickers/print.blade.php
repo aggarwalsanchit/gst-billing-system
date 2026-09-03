@@ -24,7 +24,7 @@
             min-height: 297mm;
             max-height: 297mm;
             margin: 0 auto;
-            padding: 10mm 1mm 8mm 1mm;  /* 10mm top, 1mm left/right, 8mm bottom */
+            padding: 10mm 1mm 8mm 1mm;
             background: #fff;
             overflow: hidden;
             display: flex;
@@ -32,12 +32,12 @@
             justify-content: center;
         }
         
-        /* ===== STICKER GRID ===== */
+        /* ===== STICKER GRID - REDUCED GAPS ===== */
         .sticker-grid {
             display: grid !important;
             grid-template-columns: repeat(5, 38.1mm) !important;
             grid-template-rows: repeat(13, 21.2mm) !important;
-            gap: 1.5mm 3mm !important;
+            gap: 0.5mm 1mm !important;  /* Reduced row gap and column gap */
             width: fit-content !important;
             max-width: 100% !important;
             margin: 0 auto !important;
@@ -156,7 +156,7 @@
                 min-height: 100% !important;
                 max-height: 100% !important;
                 margin: 0 !important;
-                padding: 10mm 1mm 8mm 1mm !important;  /* 10mm top, 1mm left/right, 8mm bottom */
+                padding: 10mm 1mm 8mm 1mm !important;
                 page-break-after: avoid !important;
                 overflow: visible !important;
                 display: block !important;
@@ -166,7 +166,7 @@
                 display: grid !important;
                 grid-template-columns: repeat(5, 38.1mm) !important;
                 grid-template-rows: repeat(13, 21.2mm) !important;
-                gap: 1.5mm 3mm !important;
+                gap: 0.5mm 1mm !important;  /* Reduced gaps in print */
                 width: fit-content !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
@@ -227,7 +227,7 @@
         <strong>Sticker Size:</strong> 38.1mm × 21.2mm &nbsp;|&nbsp; 
         <strong>Grid:</strong> 13 Rows × 5 Columns = 65 Stickers &nbsp;|&nbsp; 
         <strong>Font Size:</strong> 16px &nbsp;|&nbsp; 
-        <strong>Spacing:</strong> 10mm Top, 8mm Bottom, 1mm Left/Right
+        <strong>Gap:</strong> 0.5mm Row, 1mm Column
     </div>
 </div>
 
