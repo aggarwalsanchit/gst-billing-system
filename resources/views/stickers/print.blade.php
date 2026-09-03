@@ -37,10 +37,10 @@
             display: grid !important;
             grid-template-columns: repeat(5, 38.1mm) !important;
             grid-template-rows: repeat(13, 21.2mm) !important;
-            gap: 0.2mm 1mm !important;  /* Reduced row gap and column gap */
+            gap: 0.0mm 0mm !important;  /* Reduced row gap and column gap */
             width: fit-content !important;
             max-width: 100% !important;
-            margin: 0 auto !important;
+            margin: 0 4px !important;
             padding: 0 !important;
             background: #fff !important;
         }
@@ -166,9 +166,9 @@
                 display: grid !important;
                 grid-template-columns: repeat(5, 38.1mm) !important;
                 grid-template-rows: repeat(13, 21.2mm) !important;
-                gap: 0.5mm 1mm !important;  /* Reduced gaps in print */
+                gap: 0mm 0mm !important;  /* Reduced gaps in print */
                 width: fit-content !important;
-                margin: 0 auto !important;
+                margin: 0 4px !important;
                 padding: 0 !important;
                 background: #fff !important;
             }
