@@ -24,7 +24,7 @@
             min-height: 297mm;
             max-height: 297mm;
             margin: 0 auto;
-            padding: 10mm 1mm 8mm 1mm;
+            padding: 10mm 2mm 8mm 2mm;
             background: #fff;
             overflow: hidden;
             display: flex;
@@ -37,7 +37,7 @@
             display: grid !important;
             grid-template-columns: repeat(5, 38.1mm) !important;
             grid-template-rows: repeat(13, 21.2mm) !important;
-            gap: 0.0mm 0mm !important;  /* Reduced row gap and column gap */
+            gap: 0.0mm 3.5mm !important;  /* Reduced row gap and column gap */
             width: fit-content !important;
             max-width: 100% !important;
             margin: 0 4px !important;
@@ -166,7 +166,7 @@
                 display: grid !important;
                 grid-template-columns: repeat(5, 38.1mm) !important;
                 grid-template-rows: repeat(13, 21.2mm) !important;
-                gap: 0mm 0mm !important;  /* Reduced gaps in print */
+                gap: 0mm 2mm !important;  /* Reduced gaps in print */
                 width: fit-content !important;
                 margin: 0 4px !important;
                 padding: 0 !important;
