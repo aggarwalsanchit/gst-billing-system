@@ -24,7 +24,7 @@
             min-height: 297mm;
             max-height: 297mm;
             margin: 0 auto;
-            padding: 8mm 2mm;
+            padding: 10mm 1mm 8mm 1mm;  /* 10mm top, 1mm left/right, 8mm bottom */
             background: #fff;
             overflow: hidden;
             display: flex;
@@ -32,7 +32,7 @@
             justify-content: center;
         }
         
-        /* ===== STICKER GRID - FIXED ===== */
+        /* ===== STICKER GRID ===== */
         .sticker-grid {
             display: grid !important;
             grid-template-columns: repeat(5, 38.1mm) !important;
@@ -45,7 +45,7 @@
             background: #fff !important;
         }
         
-        /* ===== INDIVIDUAL STICKER - FIXED ===== */
+        /* ===== INDIVIDUAL STICKER ===== */
         .sticker-item {
             width: 38.1mm !important;
             height: 21.2mm !important;
@@ -68,7 +68,6 @@
             overflow: hidden !important;
         }
         
-        /* Text inside sticker - handles multi-line */
         .sticker-item .sticker-text {
             display: block !important;
             width: 100% !important;
@@ -157,7 +156,7 @@
                 min-height: 100% !important;
                 max-height: 100% !important;
                 margin: 0 !important;
-                padding: 8mm 2mm !important;
+                padding: 10mm 1mm 8mm 1mm !important;  /* 10mm top, 1mm left/right, 8mm bottom */
                 page-break-after: avoid !important;
                 overflow: visible !important;
                 display: block !important;
@@ -228,7 +227,7 @@
         <strong>Sticker Size:</strong> 38.1mm × 21.2mm &nbsp;|&nbsp; 
         <strong>Grid:</strong> 13 Rows × 5 Columns = 65 Stickers &nbsp;|&nbsp; 
         <strong>Font Size:</strong> 16px &nbsp;|&nbsp; 
-        <strong>Spacing:</strong> 8mm Top/Bottom, 2mm Left/Right
+        <strong>Spacing:</strong> 10mm Top, 8mm Bottom, 1mm Left/Right
     </div>
 </div>
 
