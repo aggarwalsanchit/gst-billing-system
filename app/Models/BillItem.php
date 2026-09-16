@@ -21,13 +21,24 @@ class BillItem extends Model
         'qty',
         'unit',
         'price',
+        'discount',      // per-item discount %
+        'net_total',     // qty × price − item discount
         'nsn_code',
-        'total',
+        'total',         // gross = qty × price
         'database_id',
-        'product_id'
+        'product_id',
     ];
 
-    // Relationships
+    protected $casts = [
+        'qty'       => 'float',
+        'price'     => 'float',
+        'discount'  => 'float',
+        'total'     => 'float',
+        'net_total' => 'float',
+    ];
+
+    // ---------- Relationships ----------
+
     public function bill()
     {
         return $this->belongsTo(Bill::class, 'bill_id', 'bill_id');
@@ -48,18 +59,50 @@ class BillItem extends Model
         return $this->belongsTo(AllProduct::class, 'product_id', 'product_id');
     }
 
-    // Mutator to auto-calculate total
-    public function setQtyAttribute($value)
+    // ---------- Computed Accessors ----------
+
+    /**
+     * Gross total = qty × price. Same as `total` column.
+     */
+    public function getGrossTotalAttribute()
     {
-        $this->attributes['qty'] = $value;
-        $this->attributes['total'] = $value * $this->price;
+        return (float) $this->qty * (float) $this->price;
     }
 
-    public function setPriceAttribute($value)
+    /**
+     * Discount amount for this item (in rupees).
+     */
+    public function getDiscountAmountAttribute()
     {
-        $this->attributes['price'] = $value;
-        if (isset($this->attributes['qty'])) {
-            $this->attributes['total'] = $this->attributes['qty'] * $value;
+        return $this->gross_total * ((float) $this->discount / 100);
+    }
+
+    /**
+     * Net total = gross − item discount.
+     * Prefer stored `net_total` if present; otherwise compute.
+     */
+    public function getNetTotalCalculatedAttribute()
+    {
+        if (!empty($this->attributes['net_total'])) {
+            return (float) $this->attributes['net_total'];
         }
+        return $this->gross_total - $this->discount_amount;
+    }
+
+    // ---------- Auto-compute gross and net on every save ----------
+
+    protected static function booted()
+    {
+        static::saving(function ($item) {
+            $qty   = (float) ($item->qty ?? 0);
+            $price = (float) ($item->price ?? 0);
+            $disc  = (float) ($item->discount ?? 0);
+
+            $gross = $qty * $price;
+            $net   = $gross - ($gross * $disc / 100);
+
+            $item->total     = $gross;
+            $item->net_total = $net;
+        });
     }
 }

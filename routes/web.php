@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AllProductController;
@@ -11,6 +12,12 @@ use App\Http\Controllers\ProductCatalogController;
 use App\Http\Controllers\StickerController;
 use Illuminate\Support\Facades\Route;
 
+// ========== USER LOGIN ==========
+Route::get('/login',   [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login',  [LoginController::class, 'login'])->name('login.submit');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->group(function () {
 // Dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -32,8 +39,8 @@ Route::post('/bills/store', [BillController::class, 'store'])->name('bills.store
 Route::get('/bills/{bill_id}/edit', [BillController::class, 'edit'])->name('bills.edit');
 
 // Bill Item routes
-Route::post('/bills/{bill_id}/add-item', [BillController::class, 'addItem'])->name('bills.add-item');
-Route::get('/bills/remove-item/{demo_id}', [BillController::class, 'removeItem'])->name('bills.remove-item');
+Route::post('/bills/add-item', [BillController::class, 'addItem'])->name('bills.add-item');
+Route::delete('/bills/remove-item/{demo_id}', [BillController::class, 'removeItem'])->name('bills.remove-item');
 
 // ===== FIX: Use POST with method spoofing for update =====
 // This route accepts POST, but we'll use _method=PUT in the form
@@ -46,7 +53,7 @@ Route::get('/bill-items/{demo_id}', [BillController::class, 'getItem'])->name('b
 Route::put('/bills/{bill_id}/update-header', [BillController::class, 'updateHeader'])->name('bills.update-header');
 
 // Update notes
-Route::post('/bills/{bill_id}/update-notes', [BillController::class, 'updateNotes'])->name('bills.update-notes');
+Route::put('/bills/{bill_id}/update-notes', [BillController::class, 'updateNotes'])->name('bills.update-notes');
 
 // Update date
 Route::put('/bills/{bill_id}/update-date', [BillController::class, 'updateDate'])->name('bills.update-date');
@@ -106,4 +113,11 @@ Route::get('/keep-alive', function () {
             'message' => $e->getMessage()
         ], 500);
     }
+});
+
+// Invoice Settings
+Route::get('/settings/invoice', [App\Http\Controllers\InvoiceSettingController::class, 'index'])->name('settings.invoice');
+Route::put('/settings/invoice', [App\Http\Controllers\InvoiceSettingController::class, 'update'])->name('settings.invoice.update');
+Route::post('/settings/invoice/reset', [App\Http\Controllers\InvoiceSettingController::class, 'reset'])->name('settings.invoice.reset');
+
 });

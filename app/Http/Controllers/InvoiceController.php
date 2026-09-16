@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\GstSetting;
+use App\Models\InvoiceSetting;
 use App\Helpers\InvoiceHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -16,28 +17,28 @@ class InvoiceController extends Controller
     {
         $bill = Bill::with(['customer', 'items', 'note'])
             ->where('bill_id', $bill_id)
+            ->orderBy('bill_date', 'desc')
             ->firstOrFail();
-        
-        // Get totals
+
+        $settings = InvoiceSetting::getSettings();
         $totals = InvoiceHelper::calculateTotals($bill);
-        
-        // Paginate items (18 per page)
-        $itemsPerPage = 18;
+
+        $itemsPerPage = 12;
         $itemPages = InvoiceHelper::paginateItems($bill->items->toArray(), $itemsPerPage);
-        
-        // Calculate page totals
+
         $pageTotals = [];
         foreach ($itemPages as $index => $pageItems) {
             $pageSubtotal = array_sum(array_column($pageItems, 'total'));
             $pageTotals[$index] = $pageSubtotal;
         }
-        
+
         return view('invoices.show', compact(
             'bill',
             'totals',
             'itemPages',
             'pageTotals',
-            'itemsPerPage'
+            'itemsPerPage',
+            'settings'
         ));
     }
 
@@ -48,18 +49,29 @@ class InvoiceController extends Controller
     {
         $bill = Bill::with(['customer', 'items', 'note'])
             ->where('bill_id', $bill_id)
+            ->orderBy('bill_date', 'desc')
             ->firstOrFail();
-        
+
+        $settings = InvoiceSetting::getSettings();
         $totals = InvoiceHelper::calculateTotals($bill);
-        $itemsPerPage = 18;
+        $itemsPerPage = 10;
         $itemPages = InvoiceHelper::paginateItems($bill->items->toArray(), $itemsPerPage);
+
         $pageTotals = [];
         foreach ($itemPages as $index => $pageItems) {
             $pageSubtotal = array_sum(array_column($pageItems, 'total'));
             $pageTotals[$index] = $pageSubtotal;
         }
-        
-        $pdf = Pdf::loadView('invoices.pdf', compact('bill', 'totals', 'itemPages', 'pageTotals', 'itemsPerPage'));
+
+        $pdf = Pdf::loadView('invoices.pdf', compact(
+            'bill',
+            'totals',
+            'itemPages',
+            'pageTotals',
+            'itemsPerPage',
+            'settings'
+        ));
+
         return $pdf->download('invoice-' . $bill_id . '.pdf');
     }
 
@@ -70,17 +82,27 @@ class InvoiceController extends Controller
     {
         $bill = Bill::with(['customer', 'items', 'note'])
             ->where('bill_id', $bill_id)
+            ->orderBy('bill_date', 'desc')
             ->firstOrFail();
-        
+
+        $settings = InvoiceSetting::getSettings();
         $totals = InvoiceHelper::calculateTotals($bill);
-        $itemsPerPage = 18;
+        $itemsPerPage = 10;
         $itemPages = InvoiceHelper::paginateItems($bill->items->toArray(), $itemsPerPage);
+
         $pageTotals = [];
         foreach ($itemPages as $index => $pageItems) {
             $pageSubtotal = array_sum(array_column($pageItems, 'total'));
             $pageTotals[$index] = $pageSubtotal;
         }
-        
-        return view('invoices.print', compact('bill', 'totals', 'itemPages', 'pageTotals', 'itemsPerPage'));
+
+        return view('invoices.print', compact(
+            'bill',
+            'totals',
+            'itemPages',
+            'pageTotals',
+            'itemsPerPage',
+            'settings'
+        ));
     }
 }

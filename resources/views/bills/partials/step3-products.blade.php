@@ -10,7 +10,7 @@
             <div class="col-md-12">
                 <label class="form-label">Search Product <span class="text-danger">*</span></label>
                 <div class="position-relative">
-                    <input type="text" id="productSearch" class="form-control form-control-lg" 
+                    <input type="text" id="productSearch" class="form-control form-control-lg"
                            placeholder="Type product name or number..." autocomplete="off">
                     <div class="search-results-container" id="productSearchResults"></div>
                 </div>
@@ -25,14 +25,7 @@
 
         <!-- Product List -->
         <div class="mt-4" id="productListContainer" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6><i class="fas fa-list"></i> Added Products</h6>
-                <span class="total-amount" id="totalAmount">₹0.00</span>
-            </div>
-            <div class="product-list-container" id="productList"></div>
-            <div class="text-end mt-3">
-                <small class="text-muted">Total Items: <span id="totalItems">0</span></small>
-            </div>
+            @include('bills.partials.product-list')
         </div>
 
         <!-- Hidden inputs for products -->

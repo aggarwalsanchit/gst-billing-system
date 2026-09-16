@@ -8,7 +8,6 @@
 <div class="row">
     <div class="col-md-3 mb-3">
         <label class="form-label">Product Name <span class="text-danger">*</span></label>
-        {{-- REMOVED required attribute - will be validated in JavaScript --}}
         <input type="text" id="product_name" class="form-control">
     </div>
     <div class="col-md-2 mb-3">
@@ -25,7 +24,6 @@
     </div>
     <div class="col-md-2 mb-3">
         <label class="form-label">Price <span class="text-danger">*</span></label>
-        {{-- REMOVED required attribute - will be validated in JavaScript --}}
         <input type="number" id="product_price" class="form-control" step="0.01" min="0">
     </div>
     <div class="col-md-2 mb-3">

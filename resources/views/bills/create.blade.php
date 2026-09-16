@@ -4,7 +4,6 @@
 @section('page-title', 'Create New Bill')
 
 @section('content')
-{{-- ===== ALL HTML CONTENT HERE ===== --}}
 <div class="row">
     <div class="col-md-12">
         <!-- Step Indicator -->
@@ -59,7 +58,6 @@
 @include('bills.partials.modals')
 @endsection
 
-{{-- ===== FIX: Added @push with matching @endpush ===== --}}
 @push('scripts')
 <script>
 // ========== PAGE-SPECIFIC VARIABLES ==========
@@ -68,7 +66,7 @@ let currentStep = 3;
 // ========== STEP NAVIGATION ==========
 function goToStep(step) {
     $('#step3Card, #step4Card').addClass('section-hidden');
-    
+
     if (step === 3) {
         $('#step3Card').removeClass('section-hidden');
         $('#step3').addClass('active');
@@ -89,28 +87,50 @@ function goToStep(step) {
     }
 }
 
-function goToStep3() {
-    goToStep(3);
-}
+function goToStep3() { goToStep(3); }
+function goToStep4() { goToStep(4); }
 
-function goToStep4() {
-    goToStep(4);
-}
-
-// ========== UPDATE PREVIEW ==========
+// ========== UPDATE PREVIEW (with per-item + overall discount) ==========
 function updatePreview() {
-    const subtotal = productList.reduce((sum, p) => sum + p.total, 0);
-    const discountPercent = parseFloat($('#overall_discount').val()) || 0;
-    const discountAmount = subtotal * (discountPercent / 100);
-    const transport = parseFloat($('#transport').val()) || 0;
-    const packaging = parseFloat($('#package').val()) || 0;
-    const grandTotal = subtotal - discountAmount + transport + packaging;
+    let grossSubtotal   = 0;
+    let itemDiscountAmt = 0;
+    let netSubtotal     = 0;
 
-    $('#previewSubtotal').text('₹' + subtotal.toFixed(2));
-    $('#previewDiscount').text('₹' + discountAmount.toFixed(2));
+    productList.forEach(p => {
+        const qty     = parseFloat(p.qty) || 0;
+        const price   = parseFloat(p.price) || 0;
+        const discPct = parseFloat(p.discount) || 0;
+
+        const gross = qty * price;
+        const disc  = gross * (discPct / 100);
+        const net   = gross - disc;
+
+        grossSubtotal   += gross;
+        itemDiscountAmt += disc;
+        netSubtotal     += net;
+
+        // Keep stored values in sync
+        p.total     = gross;
+        p.net_total = net;
+    });
+
+    const overallDiscPct = parseFloat($('#overall_discount').val()) || 0;
+    const overallDiscAmt = netSubtotal * (overallDiscPct / 100);
+    const afterDiscount  = netSubtotal - overallDiscAmt;
+
+    const transport  = parseFloat($('#transport').val()) || 0;
+    const packaging  = parseFloat($('#package').val()) || 0;
+    const grossTotal = afterDiscount + transport + packaging;
+
+    $('#previewGrossSubtotal').text('₹' + grossSubtotal.toFixed(2));
+    $('#previewItemDiscount').text('₹' + itemDiscountAmt.toFixed(2));
+    $('#previewNetSubtotal').text('₹' + netSubtotal.toFixed(2));
+    $('#previewOverallDiscount').text('₹' + overallDiscAmt.toFixed(2));
+    $('#previewAfterDiscount').text('₹' + afterDiscount.toFixed(2));
     $('#previewTransport').text('₹' + transport.toFixed(2));
     $('#previewPackaging').text('₹' + packaging.toFixed(2));
-    $('#previewGrandTotal').text('₹' + grandTotal.toFixed(2));
+    $('#previewGrossTotal').text('₹' + grossTotal.toFixed(2));
+    $('#previewGrandTotal').text('₹' + grossTotal.toFixed(2)); // Pre-GST preview
 }
 
 // ========== RESET ==========
@@ -144,7 +164,7 @@ $(document).ready(function() {
         }
     });
 
-    // Customer Search Event
+    // Customer Search
     $('#customerSearch').on('keyup', function() {
         const query = $(this).val().trim();
         if (query.length < 2) {
@@ -152,8 +172,8 @@ $(document).ready(function() {
             return;
         }
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() { 
-            searchCustomers(query, '#searchResults'); 
+        searchTimeout = setTimeout(function() {
+            searchCustomers(query, '#searchResults');
         }, 300);
     });
 
@@ -167,7 +187,7 @@ $(document).ready(function() {
         }
     });
 
-    // Product Search Events
+    // Product Search
     $('#productSearch').on('keyup', function() {
         const query = $(this).val().trim();
         if (query.length < 2) {
@@ -175,8 +195,8 @@ $(document).ready(function() {
             return;
         }
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() { 
-            searchProducts(query, '#productSearchResults'); 
+        searchTimeout = setTimeout(function() {
+            searchProducts(query, '#productSearchResults');
         }, 300);
     });
 

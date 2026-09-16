@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- DataTables -->
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    
+
     {{-- ===== CUSTOM BILLING CSS ===== --}}
-    <link href="{{ asset('css/billing.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/billing.css') }}?v={{ filemtime(public_path('css/billing.css')) }}" rel="stylesheet">
 
     @stack('styles')
 
@@ -77,20 +77,67 @@
             padding: 5px 12px;
             border-radius: 20px;
         }
+
+        /* ============================================================
+           PRINT STYLES — GLOBAL
+           ============================================================ */
         @media print {
-            .no-print {
+            /* Hide topbar, sidebar, footer, action buttons */
+            .no-print,
+            .sidebar,
+            .navbar,
+            .topbar,
+            footer,
+            .footer {
                 display: none !important;
             }
-            .sidebar {
-                display: none !important;
+
+            /* Kill default page margins and any borders/outlines */
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                outline: 0 !important;
+                background: #fff !important;
             }
+
+            /* Remove container/row/column spacing so invoice sits at top-left */
+            .container-fluid,
+            .container,
+            .row,
+            .col-md-2,
+            .col-lg-2,
+            .col-md-10,
+            .col-lg-10,
             .content-area {
-                margin-left: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                border: 0 !important;
+            }
+
+            /* Strip card decoration — including the 1px border that caused the line */
+            .card,
+            .card-body,
+            .card-header {
+                box-shadow: none !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
                 padding: 0 !important;
             }
-            .card {
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
+
+            /* Hide the card header (Print / Back / Edit Bill row) */
+            .card-header {
+                display: none !important;
+            }
+
+            .invoice-container {
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
             }
         }
     </style>
@@ -123,15 +170,24 @@
                     <a href="{{ route('all-products.index') }}" class="nav-link {{ request()->routeIs('all-products.*') ? 'active' : '' }}">
                         <i class="fas fa-box"></i> Catalog
                     </a>
-                    <a href="{{ route('settings.gst') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
                     <a href="{{ route('catalog.index') }}" class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}">
                         <i class="fas fa-book"></i> Product Catalog
                     </a>
                     <a href="{{ route('stickers.index') }}" class="nav-link {{ request()->routeIs('stickers.*') ? 'active' : '' }}">
                         <i class="fas fa-tags"></i> Stickers
                     </a>
+                    <a href="{{ route('settings.invoice') }}" class="nav-link {{ request()->routeIs('settings.invoice') ? 'active' : '' }}">
+                        <i class="fas fa-file-invoice"></i> Invoice Settings
+                    </a>
+                    <a href="{{ route('settings.gst') }}" class="nav-link {{ request()->routeIs('settings.gst') ? 'active' : '' }}">
+                        <i class="fas fa-percent"></i> GST Settings
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="display: inline-block;">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Logout
+                        </button>
+                    </form>
                 </nav>
             </div>
 
@@ -139,7 +195,7 @@
             <div class="col-md-10 col-lg-10">
                 <div class="content-area">
                     <!-- Top Bar -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
                         <h4 class="mb-0">@yield('page-title', 'Dashboard')</h4>
                         <div class="d-flex align-items-center gap-3">
                             <span class="text-muted">{{ date('d M Y') }}</span>
@@ -151,28 +207,28 @@
 
                     <!-- Alerts -->
                     @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
                             <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
                     @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
                             <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
                     @if(session('info'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <div class="alert alert-info alert-dismissible fade show no-print" role="alert">
                             <i class="fas fa-info-circle me-2"></i> {{ session('info') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
                     @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
                             <ul class="mb-0">
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -199,23 +255,20 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="{{ asset('js/billing-common.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
-            // Initialize DataTables
             $('.datatable').DataTable({
                 responsive: true,
                 pageLength: 25,
                 order: [[0, 'desc']]
             });
 
-            // Auto-hide alerts after 5 seconds
             setTimeout(function() {
                 $('.alert').fadeOut('slow');
             }, 5000);
         });
 
-        // Confirm delete
         function confirmDelete(url, message = 'Are you sure you want to delete this item?') {
             if (confirm(message)) {
                 window.location.href = url;

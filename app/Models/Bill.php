@@ -19,17 +19,18 @@ class Bill extends Model
         'bill_id',
         'customer_id',
         'bill_date',
+        'financial_year',      // ← added
         'discount',
         'size',
         'transport',
-        'package'
+        'package',
     ];
 
     protected $casts = [
         'bill_date' => 'date',
-        'discount' => 'decimal:2',
+        'discount'  => 'decimal:2',
         'transport' => 'decimal:2',
-        'package' => 'decimal:2'
+        'package'   => 'decimal:2',
     ];
 
     // Relationships
@@ -66,11 +67,10 @@ class Bill extends Model
 
     public function getGstAmountAttribute()
     {
-        // Check if Punjab with GST or other state with GST
         $customer = $this->customer;
         if ($customer && $customer->gstnumber) {
             $isPunjab = strtolower($customer->state) == 'punjab';
-            $rate = $isPunjab ? 2.5 : 5; // CGST+SGST = 2.5% each or IGST = 5%
+            $rate = $isPunjab ? 2.5 : 5;
             return $this->after_discount * ($rate / 100);
         }
         return 0;
@@ -79,18 +79,16 @@ class Bill extends Model
     public function getGrandTotalAttribute()
     {
         $total = $this->after_discount;
-        
-        // Add GST
+
         $type = $this->getTaxType();
         if ($type == 'cgst_sgst') {
             $total += ($this->cgst + $this->sgst);
         } elseif ($type == 'igst') {
             $total += $this->igst;
         }
-        
-        // Add transport and packaging
+
         $total += $this->transport + $this->package;
-        
+
         return $total;
     }
 
@@ -108,7 +106,7 @@ class Bill extends Model
         $type = $this->getTaxType();
         if ($type == 'no_gst') return 0;
         if ($type == 'igst') return 5;
-        return 2.5; // CGST/SGST each
+        return 2.5;
     }
 
     public function getCgstAttribute()
@@ -133,26 +131,19 @@ class Bill extends Model
     {
         $numberToWords = new NumberToWords();
         $numberTransformer = $numberToWords->getNumberTransformer('en');
-        
-        // Get the whole number and decimal separately
-        $amount = $this->grand_total;
-        $whole = floor($amount);
+
+        $amount  = $this->grand_total;
+        $whole   = floor($amount);
         $decimal = round(($amount - $whole) * 100);
-        
+
         $words = ucfirst($numberTransformer->toWords($whole));
-        
+
         if ($decimal > 0) {
             $words .= ' Rupees ' . $numberTransformer->toWords($decimal) . ' Paise Only';
         } else {
             $words .= ' Rupees Only';
         }
-        
-        return $words;
-    }
 
-    private function convertNumberToWords($number)
-    {
-        // You can copy your existing PHP function here
-        // or use a package like: composer require kwn/number-to-words
+        return $words;
     }
 }

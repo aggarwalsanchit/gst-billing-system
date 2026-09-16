@@ -10,8 +10,15 @@ class BillId extends Model
     use HasFactory;
 
     protected $table = 'billid';
+    protected $primaryKey = 'id';
+    public $timestamps = true;
 
     protected $fillable = [
-        'bill_id'
+        'bill_id',
+        'financial_year',
+    ];
+
+    protected $casts = [
+        'bill_id' => 'integer',
     ];
 }

@@ -25,7 +25,7 @@ function searchCustomers(query, resultsContainer, callback) {
         $(resultsContainer).hide().empty();
         return;
     }
-    
+
     $.ajax({
         url: '/customers/search',
         method: 'GET',
@@ -37,7 +37,7 @@ function searchCustomers(query, resultsContainer, callback) {
             if (response.length === 0) {
                 results.append(`
                     <div class="no-results">
-                        <i class="fas fa-user-plus"></i> No customer found. 
+                        <i class="fas fa-user-plus"></i> No customer found.
                         <strong>Press Enter</strong> to add "${query}" as new customer.
                     </div>
                 `);
@@ -51,7 +51,7 @@ function searchCustomers(query, resultsContainer, callback) {
                             <div>
                                 <div class="item-name">${customer.name}</div>
                                 <div class="item-details">
-                                    <i class="fas fa-phone"></i> ${customer.phone || 'N/A'} 
+                                    <i class="fas fa-phone"></i> ${customer.phone || 'N/A'}
                                     <i class="fas fa-map-marker-alt ms-2"></i> ${customer.state || 'N/A'}
                                 </div>
                             </div>
@@ -60,8 +60,7 @@ function searchCustomers(query, resultsContainer, callback) {
                     </div>
                 `);
             });
-            
-            // Callback if provided
+
             if (typeof callback === 'function') {
                 callback(response);
             }
@@ -87,35 +86,29 @@ function selectCustomer(customerId, resultsContainer) {
         success: function(customer) {
             selectedCustomer = customer;
             isNewCustomer = false;
-            
-            // Update hidden fields
+
             $('#customer_id').val(customer.customer_id);
             $('#is_existing').val(1);
             $('#state').val(customer.state);
-            
-            // Update display
+
             $('#displayName').text(customer.name);
             $('#displayAddress').text(customer.address || 'Address: N/A');
             $('#displayPhone').text('Phone: ' + (customer.phone || 'N/A'));
             $('#displayGst').text('GST: ' + (customer.gstnumber || 'N/A'));
             $('#displayPan').text('PAN: ' + (customer.panno || 'N/A'));
             $('#displayState').text('State: ' + (customer.state || 'N/A'));
-            
-            // Show customer display
+
             $('#customerDisplay').show();
             $('#newCustomerForm').hide();
             $('#customerSearch').val(customer.name);
             $('#customerSearch').addClass('customer-selected');
             $('#customerStatus').removeClass('bg-secondary bg-warning').addClass('bg-success').text('Customer Selected');
-            
-            // Hide search results
+
             $(resultsContainer).hide();
-            
-            // Show products section
+
             $('#productForm').show();
             $('#productSearch').focus();
-            
-            // Update state display
+
             $('#state_display').val(customer.state);
         },
         error: function() {
@@ -128,7 +121,6 @@ function selectCustomer(customerId, resultsContainer) {
  * Check and add new customer
  */
 function checkAndAddNewCustomer(name, searchResultsContainer) {
-    // Check if customer already exists in search results
     let found = false;
     $(searchResultsContainer + ' .search-result-item').each(function() {
         const customerName = $(this).find('.item-name').text();
@@ -143,7 +135,6 @@ function checkAndAddNewCustomer(name, searchResultsContainer) {
         return;
     }
 
-    // New customer
     isNewCustomer = true;
     selectedCustomer = null;
     $('#customer_id').val('');
@@ -153,7 +144,7 @@ function checkAndAddNewCustomer(name, searchResultsContainer) {
     $('#newCustomerForm').show();
     $('#customerSearch').removeClass('customer-selected');
     $('#customerStatus').removeClass('bg-secondary bg-success').addClass('bg-warning').text('New Customer - Fill Details');
-    
+
     setTimeout(function() {
         $('#customer_state').focus();
     }, 300);
@@ -202,7 +193,7 @@ function saveNewCustomer(callback) {
         },
         success: function(response) {
             saveBtn.html(originalText).prop('disabled', false);
-            
+
             if (response && response.success && response.customer) {
                 const customer = response.customer;
                 selectedCustomer = customer;
@@ -210,29 +201,26 @@ function saveNewCustomer(callback) {
                 $('#customer_id').val(customer.customer_id);
                 $('#is_existing').val(1);
                 $('#state').val(customer.state);
-                
-                // Update display
+
                 $('#displayName').text(customer.name);
                 $('#displayAddress').text(customer.address || 'Address: N/A');
                 $('#displayPhone').text('Phone: ' + (customer.phone || 'N/A'));
                 $('#displayGst').text('GST: ' + (customer.gstnumber || 'N/A'));
                 $('#displayPan').text('PAN: ' + (customer.panno || 'N/A'));
                 $('#displayState').text('State: ' + (customer.state || 'N/A'));
-                
+
                 $('#customerDisplay').show();
                 $('#newCustomerForm').hide();
                 $('#customerSearch').val(customer.name);
                 $('#customerSearch').addClass('customer-selected');
                 $('#customerStatus').removeClass('bg-warning').addClass('bg-success').text('Customer Saved');
                 $('#state_display').val(customer.state);
-                
-                // Show products section
+
                 $('#productForm').show();
                 $('#productSearch').focus();
-                
+
                 alert('Customer "' + customer.name + '" saved successfully!');
-                
-                // Callback if provided
+
                 if (typeof callback === 'function') {
                     callback(customer);
                 }
@@ -293,7 +281,7 @@ function searchProducts(query, resultsContainer) {
         $(resultsContainer).hide().empty();
         return;
     }
-    
+
     $.ajax({
         url: '/all-products/search',
         method: 'GET',
@@ -305,7 +293,7 @@ function searchProducts(query, resultsContainer) {
             if (response.length === 0) {
                 results.append(`
                     <div class="no-results">
-                        <i class="fas fa-plus-circle"></i> No product found. 
+                        <i class="fas fa-plus-circle"></i> No product found.
                         <strong>Press Enter</strong> to add "${query}" as new product.
                     </div>
                 `);
@@ -354,7 +342,7 @@ function selectProduct(productId) {
             $('#product_stock').val('Catalog Item');
             $('#product_qty').val(1);
             $('#product_discount').val(0);
-            
+
             $('#productFormTitle').text('Edit Product (Existing)');
             $('#productForm').show();
             $('#productSearch').addClass('product-selected');
@@ -406,7 +394,7 @@ function checkAndAddNewProduct(query) {
     $('#productFormTitle').text('New Product - Fill Details');
     $('#productForm').show();
     $('#productSearch').removeClass('product-selected');
-    
+
     setTimeout(function() {
         $('#product_name').focus();
     }, 300);
@@ -433,17 +421,17 @@ function cancelProductForm() {
 }
 
 /**
- * Add product to list (for create bill)
+ * Add product to list (create bill).
  */
 function addProductToList() {
-    const name = $('#product_name').val().trim();
-    const pnumber = $('#product_pnumber').val().trim();
-    const qty = parseInt($('#product_qty').val()) || 0;
-    const unit = $('#product_unit').val().trim() || 'PCS';
-    const price = parseFloat($('#product_price').val()) || 0;
-    const discount = parseFloat($('#product_discount').val()) || 0;
-    const nsn = $('#product_nsn').val().trim() || '';
-    const product_id = selectedProduct?.product_id || null;
+    const name        = $('#product_name').val().trim();
+    const pnumber     = $('#product_pnumber').val().trim();
+    const qty         = parseInt($('#product_qty').val()) || 0;
+    const unit        = $('#product_unit').val().trim() || 'PCS';
+    const price       = parseFloat($('#product_price').val()) || 0;
+    const discount    = parseFloat($('#product_discount').val()) || 0;
+    const nsn         = $('#product_nsn').val().trim() || '';
+    const product_id  = selectedProduct?.product_id || null;
 
     if (!name) {
         alert('Please enter product name');
@@ -460,14 +448,18 @@ function addProductToList() {
         $('#product_price').focus();
         return;
     }
+    if (discount < 0 || discount > 100) {
+        alert('Discount must be between 0 and 100');
+        $('#product_discount').focus();
+        return;
+    }
 
-    const total = qty * price;
+    const total          = qty * price;
     const discountAmount = total * (discount / 100);
-    const finalTotal = total - discountAmount;
+    const netTotal       = total - discountAmount;
 
-    // Check if product already in list
-    const existingIndex = productList.findIndex(p => 
-        p.name.toLowerCase() === name.toLowerCase() && 
+    const existingIndex = productList.findIndex(p =>
+        p.name.toLowerCase() === name.toLowerCase() &&
         p.price === price
     );
 
@@ -475,24 +467,26 @@ function addProductToList() {
         if (!confirm('Product already in list. Update quantity?')) {
             return;
         }
-        productList[existingIndex].qty += qty;
-        productList[existingIndex].total = productList[existingIndex].qty * productList[existingIndex].price;
-        productList[existingIndex].discount = discount;
-        productList[existingIndex].finalTotal = productList[existingIndex].total - (productList[existingIndex].total * (discount / 100));
+        const existing = productList[existingIndex];
+        existing.qty            += qty;
+        existing.discount        = discount;
+        existing.total           = existing.qty * existing.price;
+        existing.discountAmount  = existing.total * (discount / 100);
+        existing.net_total       = existing.total - existing.discountAmount;
     } else {
         productList.push({
-            id: ++productIdCounter,
-            name: name,
-            pnumber: pnumber,
-            qty: qty,
-            unit: unit,
-            price: price,
-            discount: discount,
-            nsn: nsn,
-            product_id: product_id,
-            total: total,
+            id:             ++productIdCounter,
+            name:           name,
+            pnumber:        pnumber,
+            qty:            qty,
+            unit:           unit,
+            price:          price,
+            discount:       discount,
+            nsn:            nsn,
+            product_id:     product_id,
+            total:          total,
             discountAmount: discountAmount,
-            finalTotal: finalTotal
+            net_total:      netTotal,
         });
     }
 
@@ -503,7 +497,7 @@ function addProductToList() {
 }
 
 /**
- * Render product list (for create bill)
+ * Render product list (create bill).
  */
 function renderProductList() {
     const container = $('#productList');
@@ -516,10 +510,31 @@ function renderProductList() {
 
     $('#productListContainer').show();
 
+    let grossSubtotal   = 0;
+    let itemDiscountAmt = 0;
+    let netSubtotal     = 0;
+
     productList.forEach((product, index) => {
-        const discountText = product.discount > 0 ? 
-            `<span class="badge bg-warning ms-1">${product.discount}% off</span>` : '';
-        
+        const qty      = parseFloat(product.qty) || 0;
+        const price    = parseFloat(product.price) || 0;
+        const discPct  = parseFloat(product.discount) || 0;
+
+        const gross    = qty * price;
+        const discAmt  = gross * (discPct / 100);
+        const net      = gross - discAmt;
+
+        grossSubtotal   += gross;
+        itemDiscountAmt += discAmt;
+        netSubtotal     += net;
+
+        product.total          = gross;
+        product.discountAmount = discAmt;
+        product.net_total      = net;
+
+        const discountText = discPct > 0
+            ? `<span class="badge bg-warning ms-1">${discPct}% off</span>`
+            : '';
+
         container.append(`
             <div class="product-item">
                 <div class="product-info">
@@ -529,8 +544,9 @@ function renderProductList() {
                         ${product.product_id ? '<span class="badge bg-info ms-1">Catalog</span>' : '<span class="badge bg-warning ms-1">New</span>'}
                         ${discountText}
                         <div class="text-muted small">
-                            ${product.qty} × ₹${product.price.toFixed(2)} = ₹${product.total.toFixed(2)}
-                            ${product.discount > 0 ? `<span class="text-danger">- ₹${product.discountAmount.toFixed(2)}</span>` : ''}
+                            ${qty} × ₹${price.toFixed(2)} = ₹${gross.toFixed(2)}
+                            ${discAmt > 0 ? `<span class="text-danger ms-2">− ₹${discAmt.toFixed(2)}</span>` : ''}
+                            <span class="ms-2">Net: ₹${net.toFixed(2)}</span>
                             <span class="ms-2">Unit: ${product.unit}</span>
                             ${product.nsn ? `<span class="ms-2">HSN: ${product.nsn}</span>` : ''}
                         </div>
@@ -547,6 +563,25 @@ function renderProductList() {
             </div>
         `);
     });
+
+    container.append(`
+        <div class="product-list-summary mt-3 p-3 bg-light rounded">
+            <div class="d-flex justify-content-between">
+                <span>Gross Subtotal:</span>
+                <strong>₹${grossSubtotal.toFixed(2)}</strong>
+            </div>
+            ${itemDiscountAmt > 0 ? `
+            <div class="d-flex justify-content-between text-danger">
+                <span>Item Discounts:</span>
+                <strong>− ₹${itemDiscountAmt.toFixed(2)}</strong>
+            </div>
+            ` : ''}
+            <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                <span>Net Subtotal:</span>
+                <strong>₹${netSubtotal.toFixed(2)}</strong>
+            </div>
+        </div>
+    `);
 
     updateHiddenInputs();
 }
@@ -566,7 +601,7 @@ function editProductFromList(index) {
     $('#product_stock').val('Editing...');
     $('#productFormTitle').text('Edit Product');
     $('#productForm').show();
-    
+
     productList.splice(index, 1);
     renderProductList();
     updateTotals();
@@ -590,11 +625,35 @@ function removeProductFromList(index) {
  * Update totals
  */
 function updateTotals() {
-    const total = productList.reduce((sum, p) => sum + p.total, 0);
-    const finalTotal = productList.reduce((sum, p) => sum + (p.finalTotal || p.total), 0);
-    const totalItems = productList.reduce((sum, p) => sum + p.qty, 0);
-    $('#totalAmount').text('₹' + finalTotal.toFixed(2));
+    let grossSubtotal   = 0;
+    let itemDiscountAmt = 0;
+    let netSubtotal     = 0;
+    let totalItems      = 0;
+
+    productList.forEach(p => {
+        const qty     = parseFloat(p.qty) || 0;
+        const price   = parseFloat(p.price) || 0;
+        const discPct = parseFloat(p.discount) || 0;
+
+        const gross   = qty * price;
+        const discAmt = gross * (discPct / 100);
+        const net     = gross - discAmt;
+
+        grossSubtotal   += gross;
+        itemDiscountAmt += discAmt;
+        netSubtotal     += net;
+        totalItems      += qty;
+
+        p.total          = gross;
+        p.discountAmount = discAmt;
+        p.net_total      = net;
+    });
+
+    $('#totalAmount').text('₹' + netSubtotal.toFixed(2));
     $('#totalItems').text(totalItems);
+
+    $('#step4TotalAmount').text('₹' + netSubtotal.toFixed(2));
+    $('#step4TotalItems').text(totalItems);
 }
 
 /**
@@ -602,9 +661,25 @@ function updateTotals() {
  */
 function updateHiddenInputs() {
     $('#productInputs').empty();
-    const productsJson = JSON.stringify(productList);
+
+    const payload = productList.map(p => ({
+        name:           p.name,
+        pnumber:        p.pnumber || '',
+        qty:            p.qty,
+        unit:           p.unit || 'PCS',
+        price:          p.price,
+        discount:       p.discount || 0,
+        nsn:            p.nsn || '',
+        product_id:     p.product_id || null,
+        total:          p.total,
+        discountAmount: p.discountAmount || 0,
+        net_total:      p.net_total,
+    }));
+
+    const productsJson = JSON.stringify(payload);
+
     $('#productInputs').append(`
-        <input type="hidden" name="products_json" value='${productsJson}'>
+        <input type="hidden" name="products_json" value='${productsJson.replace(/'/g, "&#39;")}'>
         <input type="hidden" name="product_count" value="${productList.length}">
     `);
 }
@@ -615,14 +690,14 @@ function updateHiddenInputs() {
 // ============================================================
 
 /**
- * Search edit products (for edit bill page)
+ * Search edit products (edit bill page)
  */
 function searchEditProducts(query, resultsContainer) {
     if (query.length < 2) {
         $(resultsContainer).hide().empty();
         return;
     }
-    
+
     $.ajax({
         url: '/all-products/search',
         method: 'GET',
@@ -634,7 +709,7 @@ function searchEditProducts(query, resultsContainer) {
             if (response.length === 0) {
                 results.append(`
                     <div class="no-results">
-                        <i class="fas fa-plus-circle"></i> No product found. 
+                        <i class="fas fa-plus-circle"></i> No product found.
                         <strong>Press Enter</strong> to add "${query}" as new product.
                     </div>
                 `);
@@ -683,17 +758,15 @@ function selectEditProduct(productId) {
             $('#edit_product_unit').val(product.unit || 'PCS');
             $('#edit_product_price').val(product.price);
             $('#edit_product_nsn').val(product.hsn_code || '');
-            $('#edit_product_stock').val('Catalog Item');
             $('#edit_product_qty').val(1);
             $('#edit_product_discount').val(0);
             $('#edit_demo_id').val('');
-            
-            $('#editProductFormTitle').text('Edit Product (Existing)');
-            $('#editProductForm').show();
-            $('#editProductSearch').addClass('product-selected');
-            $('#editProductSearchResults').hide();
-            $('#editProductSearch').val(product.pnumber || product.name);
+
+            $('#editProductFormTitle').text('Add New Item');
+            $('#editProductSearchResults').hide().empty();
+            $('#editProductSearch').val('').removeClass('product-selected');
             $('#editAddProductBtnText').text('Add Product');
+
             $('#edit_product_qty').focus().select();
         },
         error: function() {
@@ -720,29 +793,21 @@ function checkAndAddEditProduct(query) {
         return;
     }
 
-    if ($('#editProductForm').is(':visible')) {
-        const currentPnumber = $('#edit_product_pnumber').val();
-        if (currentPnumber === query) {
-            $('#edit_product_name').focus();
-            return;
-        }
-    }
-
+    // New product - prefill form with search query
     editSelectedProduct = null;
     $('#edit_product_pnumber').val(query);
     $('#edit_product_name').val('');
     $('#edit_product_unit').val('PCS');
     $('#edit_product_price').val('');
     $('#edit_product_nsn').val('');
-    $('#edit_product_stock').val('New Product');
     $('#edit_product_qty').val(1);
     $('#edit_product_discount').val(0);
     $('#edit_demo_id').val('');
-    $('#editProductFormTitle').text('New Product - Fill Details');
-    $('#editProductForm').show();
+    $('#editProductFormTitle').text('New Item');
     $('#editProductSearch').removeClass('product-selected');
+    $('#editProductSearchResults').hide().empty();
     $('#editAddProductBtnText').text('Add Product');
-    
+
     setTimeout(function() {
         $('#edit_product_name').focus();
     }, 300);
@@ -757,28 +822,24 @@ function cancelEditProductForm() {
     $('#edit_product_unit').val('PCS');
     $('#edit_product_price').val('');
     $('#edit_product_nsn').val('');
-    $('#edit_product_stock').val('');
     $('#edit_product_qty').val(1);
     $('#edit_product_discount').val(0);
     $('#edit_demo_id').val('');
-    $('#editProductFormTitle').text('New Product');
-    $('#editProductSearch').val('');
-    $('#editProductSearch').removeClass('product-selected');
+    $('#editProductFormTitle').text('Add New Item');
+    $('#editProductSearch').val('').removeClass('product-selected');
+    $('#editProductSearchResults').hide().empty();
     editSelectedProduct = null;
-    $('#editProductForm').hide();
     $('#editAddProductBtnText').text('Add Product');
-    $('#editProductSearch').focus().select();
-    
-    // Reset form action back to add item
-    $('#addItemForm').attr('action', '/bills/' + $('#bill_id').val() + '/add-item');
+
+    $('#addItemForm').attr('action', '/bills/add-item');
     $('#addItemForm').find('input[name="_method"]').remove();
     $('#addItemForm').find('input[name="edit_mode"]').remove();
 }
 
 /**
- * Edit bill item (for edit bill page)
+ * Edit bill item (edit bill page)
  */
-function editBillItem(demoId, billId) {
+function editBillItem(demoId) {
     $.ajax({
         url: `/bill-items/${demoId}`,
         method: 'GET',
@@ -791,20 +852,20 @@ function editBillItem(demoId, billId) {
             $('#edit_product_price').val(item.price);
             $('#edit_product_nsn').val(item.nsn_code || '');
             $('#edit_product_discount').val(item.discount || 0);
-            $('#edit_product_stock').val('Editing Item');
-            
-            $('#editProductFormTitle').text('Edit Product');
-            $('#editProductForm').show();
+
+            $('#editProductFormTitle').text('Edit Item');
             $('#editAddProductBtnText').text('Update Product');
-            $('#editProductSearch').val(item.Product);
-            
-            // Update form action
+            $('#editProductSearch').val('').removeClass('product-selected');
+            $('#editProductSearchResults').hide().empty();
+
             $('#addItemForm').attr('action', `/bills/update-item/${demoId}`);
             $('#addItemForm').find('input[name="_method"]').remove();
             $('#addItemForm').append('<input type="hidden" name="_method" value="PUT">');
-            $('#addItemForm').find('input[name="edit_mode"]').remove();
-            $('#addItemForm').append('<input type="hidden" name="edit_mode" value="1">');
-            
+
+            $('html, body').animate({
+                scrollTop: $("#addItemForm").offset().top - 100
+            }, 300);
+
             $('#edit_product_qty').focus().select();
         },
         error: function() {
@@ -830,7 +891,7 @@ function searchModalCustomers(query) {
         $('#modalSearchResults').hide().empty();
         return;
     }
-    
+
     $.ajax({
         url: '/customers/search',
         method: 'GET',
@@ -842,7 +903,7 @@ function searchModalCustomers(query) {
             if (response.length === 0) {
                 results.append(`
                     <div class="no-results">
-                        <i class="fas fa-user-plus"></i> No customer found. 
+                        <i class="fas fa-user-plus"></i> No customer found.
                         <strong>Press Enter</strong> to add "${query}" as new customer.
                     </div>
                 `);
@@ -856,7 +917,7 @@ function searchModalCustomers(query) {
                             <div>
                                 <div class="item-name">${customer.name}</div>
                                 <div class="item-details">
-                                    <i class="fas fa-phone"></i> ${customer.phone || 'N/A'} 
+                                    <i class="fas fa-phone"></i> ${customer.phone || 'N/A'}
                                     <i class="fas fa-map-marker-alt ms-2"></i> ${customer.state || 'N/A'}
                                 </div>
                             </div>
@@ -883,18 +944,18 @@ function selectModalCustomer(customerId) {
             modalSelectedCustomer = customer;
             modalIsNewCustomer = false;
             $('#modal_customer_id').val(customer.customer_id);
-            
+
             $('#modalDisplayName').text(customer.name);
             $('#modalDisplayAddress').text(customer.address || 'Address: N/A');
             $('#modalDisplayPhone').text('Phone: ' + (customer.phone || 'N/A'));
             $('#modalDisplayGst').text('GST: ' + (customer.gstnumber || 'N/A'));
             $('#modalDisplayPan').text('PAN: ' + (customer.panno || 'N/A'));
             $('#modalDisplayState').text('State: ' + (customer.state || 'N/A'));
-            
+
             $('#modalSelectedName').text(customer.name);
             $('#modalSelectedId').text(customer.customer_id);
             $('#modalSelectedCustomer').show();
-            
+
             $('#modalSearchResults').hide();
             $('#modalCustomerDisplay').show();
             $('#modalNewCustomerForm').hide();
@@ -935,7 +996,7 @@ function checkAndAddModalNewCustomer(name) {
     $('#modalSelectedCustomer').hide();
     $('#modalCustomerSearch').removeClass('customer-selected');
     $('#modalUpdateCustomerBtn').prop('disabled', true);
-    
+
     setTimeout(function() {
         $('#modal_customer_state').focus();
     }, 300);
@@ -984,20 +1045,20 @@ function saveModalNewCustomer(callback) {
         },
         success: function(response) {
             saveBtn.html(originalText).prop('disabled', false);
-            
+
             if (response && response.success && response.customer) {
                 const customer = response.customer;
                 modalSelectedCustomer = customer;
                 modalIsNewCustomer = false;
                 $('#modal_customer_id').val(customer.customer_id);
-                
+
                 $('#modalDisplayName').text(customer.name);
                 $('#modalDisplayAddress').text(customer.address || 'Address: N/A');
                 $('#modalDisplayPhone').text('Phone: ' + (customer.phone || 'N/A'));
                 $('#modalDisplayGst').text('GST: ' + (customer.gstnumber || 'N/A'));
                 $('#modalDisplayPan').text('PAN: ' + (customer.panno || 'N/A'));
                 $('#modalDisplayState').text('State: ' + (customer.state || 'N/A'));
-                
+
                 $('#modalSelectedName').text(customer.name);
                 $('#modalSelectedId').text(customer.customer_id);
                 $('#modalSelectedCustomer').show();
@@ -1006,9 +1067,9 @@ function saveModalNewCustomer(callback) {
                 $('#modalCustomerSearch').val(customer.name);
                 $('#modalCustomerSearch').addClass('customer-selected');
                 $('#modalUpdateCustomerBtn').prop('disabled', false);
-                
+
                 alert('Customer "' + customer.name + '" saved successfully!');
-                
+
                 if (typeof callback === 'function') {
                     callback(customer);
                 }
@@ -1080,7 +1141,7 @@ function cancelModalNewCustomer() {
  */
 function updateBillCustomer(billId) {
     const customerId = $('#modal_customer_id').val();
-    
+
     if (!customerId) {
         alert('Please select a customer first');
         return;
@@ -1089,7 +1150,7 @@ function updateBillCustomer(billId) {
     const updateBtn = $('#modalUpdateCustomerBtn');
     const originalText = updateBtn.html();
     updateBtn.html('<i class="fas fa-spinner fa-spin"></i> Updating...').prop('disabled', true);
-    
+
     $.ajax({
         url: `/bills/${billId}/update-customer`,
         method: 'POST',

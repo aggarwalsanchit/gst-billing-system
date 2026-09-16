@@ -9,8 +9,10 @@
             <h6><i class="fas fa-list"></i> Products in this Bill</h6>
             <div id="step4ProductList" class="product-list-container"></div>
             <div class="text-end mt-2">
-                <small class="text-muted">Total Items: <span id="step4TotalItems">0</span> | 
-                Total Amount: <span class="total-amount" id="step4TotalAmount">₹0.00</span></small>
+                <small class="text-muted">
+                    Total Items: <span id="step4TotalItems">0</span> |
+                    Total Amount: <span class="total-amount" id="step4TotalAmount">₹0.00</span>
+                </small>
             </div>
             <hr>
         </div>
@@ -19,15 +21,18 @@
         <div class="row">
             <div class="col-md-3 mb-3">
                 <label class="form-label">Overall Discount (%)</label>
-                <input type="number" name="discount" id="overall_discount" class="form-control" value="0" step="0.01" min="0" max="100">
+                <input type="number" name="discount" id="overall_discount" class="form-control"
+                       value="0" step="0.01" min="0" max="100">
             </div>
             <div class="col-md-3 mb-3">
                 <label class="form-label">Transport Cost</label>
-                <input type="number" name="transport" id="transport" class="form-control" value="0" step="0.01" min="0">
+                <input type="number" name="transport" id="transport" class="form-control"
+                       value="0" step="0.01" min="0">
             </div>
             <div class="col-md-3 mb-3">
                 <label class="form-label">Packaging Cost</label>
-                <input type="number" name="package" id="package" class="form-control" value="0" step="0.01" min="0">
+                <input type="number" name="package" id="package" class="form-control"
+                       value="0" step="0.01" min="0">
             </div>
             <div class="col-md-3 mb-3">
                 <label class="form-label">Bill Size</label>
@@ -55,18 +60,30 @@
 
         <!-- Summary Preview -->
         <div class="row mt-3">
-            <div class="col-md-6 offset-md-6">
+            <div class="col-md-7 offset-md-5">
                 <div class="card bg-light">
                     <div class="card-body">
                         <h6 class="card-title">Bill Summary</h6>
                         <table class="table table-sm table-borderless mb-0">
                             <tr>
-                                <td>Subtotal:</td>
-                                <td class="text-end" id="previewSubtotal">₹0.00</td>
+                                <td>Gross Subtotal:</td>
+                                <td class="text-end" id="previewGrossSubtotal">₹0.00</td>
                             </tr>
                             <tr>
-                                <td>Discount:</td>
-                                <td class="text-end" id="previewDiscount">₹0.00</td>
+                                <td>Item Discounts:</td>
+                                <td class="text-end" id="previewItemDiscount">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Net Subtotal:</td>
+                                <td class="text-end" id="previewNetSubtotal">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td>Overall Discount:</td>
+                                <td class="text-end" id="previewOverallDiscount">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td>After Discount:</td>
+                                <td class="text-end" id="previewAfterDiscount">₹0.00</td>
                             </tr>
                             <tr>
                                 <td>Transport:</td>
@@ -76,11 +93,18 @@
                                 <td>Packaging:</td>
                                 <td class="text-end" id="previewPackaging">₹0.00</td>
                             </tr>
+                            <tr>
+                                <td>Gross Total:</td>
+                                <td class="text-end" id="previewGrossTotal">₹0.00</td>
+                            </tr>
                             <tr class="table-success">
-                                <td><strong>Grand Total:</strong></td>
+                                <td><strong>Grand Total (pre-GST):</strong></td>
                                 <td class="text-end"><strong id="previewGrandTotal">₹0.00</strong></td>
                             </tr>
                         </table>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-info-circle"></i> GST will be calculated and shown on the final invoice.
+                        </small>
                     </div>
                 </div>
             </div>
