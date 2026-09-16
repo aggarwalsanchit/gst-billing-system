@@ -1,3 +1,20 @@
+<style>
+    .invoice-page {
+        background-image: url('{{ asset('images/loga.png') }}') !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        background-size: initial !important;
+    }
+
+    @media print {
+        .invoice-page {
+            background-image: url('{{ asset('images/loga.png') }}') !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+
 @php
     $totalPages = count($itemPages);
     $isLastPage = false;
@@ -10,7 +27,13 @@
         $showSummary = $isLastPage;
     @endphp
 
-    <div class="invoice-page" style="page-break-after: always; padding: 0px; max-width: 1000px; margin: 0 auto; font-family: Arial, sans-serif;">
+    <div class="invoice-page"
+     style="page-break-after: always; padding: 0px; max-width: 1000px; margin: 0 auto;
+            font-family: Arial, sans-serif;
+            background-image: url('{{ asset('images/loga.png') }}');
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: initial;">
 
         <!-- ===== TAX INVOICE HEADER ===== -->
         <div style="text-align: center; margin-bottom: 0px;">
