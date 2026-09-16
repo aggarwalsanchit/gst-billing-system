@@ -102,7 +102,7 @@ class BillController extends Controller
             }
 
             // ========== CREATE BILL ==========
-            $size = 440 + (count($products) * 20);
+            $size = $request->input('size', 15);
 
             $bill = Bill::create([
                 'bill_id'        => $request->bill_id,
@@ -376,6 +376,7 @@ class BillController extends Controller
             'discount'  => $request->discount ?? 0,
             'transport' => $request->transport ?? 0,
             'package'   => $request->package ?? 0,
+            'size'      => $request->size ?? $bill->size,
         ]);
 
         return redirect()->route('bills.edit', $bill_id)

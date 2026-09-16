@@ -56,6 +56,7 @@
 
 <!-- Modals -->
 @include('bills.partials.modals')
+@include('bills.partials.customer-modal')
 @endsection
 
 @push('scripts')
@@ -73,6 +74,7 @@ function goToStep(step) {
         $('#step4').removeClass('active');
         $('#line3').removeClass('active');
         currentStep = 3;
+        $('#step4ProductList').empty(); // Clear step-4 product list when going back
     } else if (step === 4) {
         if (productList.length === 0) {
             alert('Please add at least one product first');
@@ -83,12 +85,86 @@ function goToStep(step) {
         $('#step3').removeClass('active');
         $('#line3').addClass('active');
         currentStep = 4;
+
+        // Render products in step 4
+        renderStep4Products();
         updatePreview();
     }
 }
 
 function goToStep3() { goToStep(3); }
 function goToStep4() { goToStep(4); }
+
+// ========== RENDER PRODUCTS IN STEP 4 ==========
+function renderStep4Products() {
+    const container = $('#step4ProductList');
+    container.empty();
+
+    if (productList.length === 0) {
+        container.html('<div class="alert alert-warning">No products added.</div>');
+        return;
+    }
+
+    productList.forEach((product, index) => {
+        const qty      = parseFloat(product.qty) || 0;
+        const price    = parseFloat(product.price) || 0;
+        const discPct  = parseFloat(product.discount) || 0;
+        const gross    = qty * price;
+        const discAmt  = gross * (discPct / 100);
+        const net      = gross - discAmt;
+
+        const discountText = discPct > 0
+            ? `<span class="badge bg-warning ms-1">${discPct}% off</span>`
+            : '';
+
+        container.append(`
+            <div class="product-item">
+                <div class="product-info">
+                    <div>
+                        <strong>${product.name}</strong>
+                        <span class="badge bg-secondary ms-2">#${product.pnumber || 'N/A'}</span>
+                        ${product.product_id ? '<span class="badge bg-info ms-1">Catalog</span>' : '<span class="badge bg-warning ms-1">New</span>'}
+                        ${discountText}
+                        <div class="text-muted small">
+                            ${qty} × ₹${price.toFixed(2)} = ₹${gross.toFixed(2)}
+                            ${discAmt > 0 ? `<span class="text-danger ms-2">− ₹${discAmt.toFixed(2)}</span>` : ''}
+                            <span class="ms-2">Net: ₹${net.toFixed(2)}</span>
+                            <span class="ms-2">Unit: ${product.unit}</span>
+                            ${product.nsn ? `<span class="ms-2">HSN: ${product.nsn}</span>` : ''}
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeProductFromStep4(${index})" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+}
+
+// ========== REMOVE PRODUCT FROM STEP 4 ==========
+function removeProductFromStep4(index) {
+    if (confirm('Remove this product from the bill?')) {
+        productList.splice(index, 1);
+
+        // If no products left, go back to step 3
+        if (productList.length === 0) {
+            goToStep(3);
+            updateTotals();
+            renderProductList();
+            $('#productCount').text('0 Products');
+            return;
+        }
+
+        renderStep4Products();
+        updatePreview();
+        updateTotals();
+        renderProductList();
+        $('#productCount').text(productList.length + ' Products');
+    }
+}
 
 // ========== UPDATE PREVIEW (with per-item + overall discount) ==========
 function updatePreview() {
@@ -131,6 +207,10 @@ function updatePreview() {
     $('#previewPackaging').text('₹' + packaging.toFixed(2));
     $('#previewGrossTotal').text('₹' + grossTotal.toFixed(2));
     $('#previewGrandTotal').text('₹' + grossTotal.toFixed(2)); // Pre-GST preview
+
+    // Also update step4 header totals
+    $('#step4TotalItems').text(productList.reduce((sum, p) => sum + (parseFloat(p.qty) || 0), 0));
+    $('#step4TotalAmount').text('₹' + netSubtotal.toFixed(2));
 }
 
 // ========== RESET ==========
@@ -225,5 +305,38 @@ $(document).ready(function() {
         }
     });
 });
+
+// ========== UPDATE BILL CUSTOMER (create page — local state only, no server call) ==========
+function updateBillCustomer() {
+    if (!modalSelectedCustomer) {
+        alert('No customer selected');
+        return;
+    }
+
+    // Use the modal's selected customer as the current one
+    selectedCustomer = modalSelectedCustomer;
+    isNewCustomer = false;
+
+    $('#customer_id').val(selectedCustomer.customer_id);
+    $('#is_existing').val(1);
+    $('#state').val(selectedCustomer.state);
+
+    $('#displayName').text(selectedCustomer.name);
+    $('#displayAddress').text(selectedCustomer.address || 'Address: N/A');
+    $('#displayPhone').text('Phone: ' + (selectedCustomer.phone || 'N/A'));
+    $('#displayGst').text('GST: ' + (selectedCustomer.gstnumber || 'N/A'));
+    $('#displayPan').text('PAN: ' + (selectedCustomer.panno || 'N/A'));
+    $('#displayState').text('State: ' + (selectedCustomer.state || 'N/A'));
+
+    $('#customerDisplay').show();
+    $('#newCustomerForm').hide();
+    $('#customerSearch').val(selectedCustomer.name);
+    $('#customerSearch').addClass('customer-selected');
+    $('#customerStatus').removeClass('bg-secondary bg-warning').addClass('bg-success').text('Customer Selected');
+    $('#state_display').val(selectedCustomer.state);
+
+    // Close the modal
+    $('#changeCustomerModal').modal('hide');
+}
 </script>
 @endpush

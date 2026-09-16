@@ -69,7 +69,7 @@
             $colCount = $anyItemDiscount ? 9 : 6;
         @endphp
 
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; border-top: 0; border-bottom: 0; font-size: 11px; margin-bottom: 0px;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; border-bottom: 0; font-size: 11px; margin-bottom: 0px;">
             <thead>
                 <tr style="background: #f0f0f0; border-bottom: 2px solid #000;">
                     <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $anyItemDiscount ? 'width: 6%;' : 'width: 8%;' }}">Qty</th>
@@ -119,7 +119,7 @@
                     </tr>
                 @endforeach
 
-                @php $remainingRows = 13 - count($pageItems); @endphp
+                @php $remainingRows = $bill->size - count($pageItems); @endphp
                 @for($i = 0; $i < $remainingRows; $i++)
                     <tr>
                         @for($c = 0; $c < $colCount; $c++)
@@ -143,139 +143,139 @@
         @endphp
 
         <div style="margin-top: 0px;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 14px; border: 1px solid #000; border-top: 0;">
-                <tbody>
-                    {{-- ===== TOTAL (after item discounts) ===== --}}
-                    <tr>
-                        <td style="width: 20%; text-align: center; padding: 6px 5px; font-weight: bold; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                            {{ $bill->items->sum('qty') }}
-                        </td>
-                        <td style="width: 30%; padding: 6px 5px; font-weight: bold; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                            Total
-                        </td>
-                        <td style="width: 20%; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;"></td>
-                        <td style="width: 30%; text-align: right; padding: 6px 5px; font-weight: bold; background: #f0f0f0; border-bottom: 1px solid #000;">
-                            Rs. {{ number_format($totalRowValue, 2) }}
-                        </td>
-                    </tr>
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: Arial, Helvetica, sans-serif; border: 1px solid #000;">
+        <tbody>
+            {{-- ===== TOTAL ===== --}}
+            <tr>
+                <td style="width: 20%; text-align: center; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+                    {{ $bill->items->sum('qty') }}
+                </td>
+                <td style="width: 30%; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+                    Total
+                </td>
+                <td style="width: 20%; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;"></td>
+                <td style="width: 30%; text-align: right; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000;">
+                    Rs. {{ number_format($totalRowValue, 2) }}
+                </td>
+            </tr>
 
-                    {{-- ===== OVERALL DISCOUNT ===== --}}
-                    @if($hasOverallDiscount)
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 14px; border-right: 1px solid #000;">
-                            Discount --- {{ $totals['overall_discount_pct'] }}%
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 14px;">
-                            - Rs. {{ number_format($totals['overall_discount_amount'], 2) }}
-                        </td>
-                    </tr>
-                    @endif
+            {{-- ===== OVERALL DISCOUNT ===== --}}
+            @if($hasOverallDiscount)
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    Discount --- {{ $totals['overall_discount_pct'] }}%
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    - Rs. {{ number_format($totals['overall_discount_amount'], 2) }}
+                </td>
+            </tr>
+            @endif
 
-                    {{-- ===== SUB TOTAL ===== --}}
-                    @if($showSubTotal)
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 15px; border-right: 1px solid #000;">
-                            Sub Total (After Discount)
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 15px;">
-                            Rs. {{ number_format($totals['after_discount'], 2) }}
-                        </td>
-                    </tr>
-                    @endif
+            {{-- ===== SUB TOTAL ===== --}}
+            @if($showSubTotal)
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    Sub Total (After Discount)
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    Rs. {{ number_format($totals['after_discount'], 2) }}
+                </td>
+            </tr>
+            @endif
 
-                    {{-- ===== TRANSPORTATION ===== --}}
-                    @if($bill->transport > 0)
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 14px; border-right: 1px solid #000;">
-                            Transportation
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 14px;">
-                            + Rs. {{ number_format($bill->transport, 2) }}
-                        </td>
-                    </tr>
-                    @endif
+            {{-- ===== TRANSPORTATION ===== --}}
+            @if($bill->transport > 0)
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    Transportation
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    + Rs. {{ number_format($bill->transport, 2) }}
+                </td>
+            </tr>
+            @endif
 
-                    {{-- ===== PACKAGING ===== --}}
-                    @if($bill->package > 0)
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 14px; border-right: 1px solid #000;">
-                            Packaging
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 14px;">
-                            + Rs. {{ number_format($bill->package, 2) }}
-                        </td>
-                    </tr>
-                    @endif
+            {{-- ===== PACKAGING ===== --}}
+            @if($bill->package > 0)
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    Packaging
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    + Rs. {{ number_format($bill->package, 2) }}
+                </td>
+            </tr>
+            @endif
 
-                    {{-- ===== GROSS TOTAL ===== --}}
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 15px; border-right: 1px solid #000;">
-                            Gross Total
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 15px;">
-                            Rs. {{ number_format($totals['gross_total'], 2) }}
-                        </td>
-                    </tr>
+            {{-- ===== GROSS TOTAL ===== --}}
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    Gross Total
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    Rs. {{ number_format($totals['gross_total'], 2) }}
+                </td>
+            </tr>
 
-                    {{-- ===== GST ===== --}}
-                    @if($totals['tax_type'] == 'cgst_sgst')
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 14px; border-right: 1px solid #000;">
-                            CGST --- {{ $totals['gst_rate']/2 }}%
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 14px;">
-                            + Rs. {{ number_format($totals['cgst'], 2) }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 14px; border-right: 1px solid #000;">
-                            SGST --- {{ $totals['gst_rate']/2 }}%
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 14px;">
-                            + Rs. {{ number_format($totals['sgst'], 2) }}
-                        </td>
-                    </tr>
-                    @elseif($totals['tax_type'] == 'igst')
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 6px 5px; font-weight: bold; font-size: 14px; border-right: 1px solid #000;">
-                            IGST --- {{ $totals['gst_rate'] }}%
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 6px 5px; font-weight: bold; font-size: 14px;">
-                            + Rs. {{ number_format($totals['igst'], 2) }}
-                        </td>
-                    </tr>
-                    @endif
+            {{-- ===== GST ===== --}}
+            @if($totals['tax_type'] == 'cgst_sgst')
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    CGST --- {{ $totals['gst_rate']/2 }}%
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    + Rs. {{ number_format($totals['cgst'], 2) }}
+                </td>
+            </tr>
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    SGST --- {{ $totals['gst_rate']/2 }}%
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    + Rs. {{ number_format($totals['sgst'], 2) }}
+                </td>
+            </tr>
+            @elseif($totals['tax_type'] == 'igst')
+            <tr>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                    IGST --- {{ $totals['gst_rate'] }}%
+                </td>
+                <td style="border-right: 1px solid #000;"></td>
+                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                    + Rs. {{ number_format($totals['igst'], 2) }}
+                </td>
+            </tr>
+            @endif
 
-                    {{-- ===== GRAND TOTAL ===== --}}
-                    <tr style="font-weight: bold;">
-                        <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
-                        <td style="padding: 8px 5px; font-size: 18px; font-weight: bold; border-right: 1px solid #000; border-top: 2px solid #000;">
-                            Grand Total
-                        </td>
-                        <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
-                        <td style="text-align: right; padding: 8px 5px; font-size: 18px; font-weight: bold; border-top: 2px solid #000;">
-                            Rs. {{ number_format($totals['grand_total'], 2) }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+            {{-- ===== GRAND TOTAL ===== --}}
+            <tr style="font-weight: 700;">
+                <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
+                <td style="padding: 5px 5px; font-size: 16px; font-weight: 700; border-right: 1px solid #000; border-top: 2px solid #000;">
+                    Grand Total
+                </td>
+                <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
+                <td style="text-align: right; padding: 5px 5px; font-size: 16px; font-weight: 700; border-top: 2px solid #000;">
+                    Rs. {{ number_format($totals['grand_total'], 2) }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
         <!-- ===== TOTALS ROW ===== -->
         <div style="margin-top: 0px; border: 1px solid #000; border-top: 0; padding: 4px 5px;">

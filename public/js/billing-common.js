@@ -118,6 +118,40 @@ function selectCustomer(customerId, resultsContainer) {
 }
 
 /**
+ * Edit the currently selected customer (opens the change-customer modal)
+ */
+function editCustomer() {
+    if (!selectedCustomer) {
+        alert('Please select a customer first');
+        return;
+    }
+
+    // Populate modal state with the selected customer
+    modalSelectedCustomer = selectedCustomer;
+    modalIsNewCustomer = false;
+
+    $('#modal_customer_id').val(selectedCustomer.customer_id);
+    $('#modalDisplayName').text(selectedCustomer.name || '');
+    $('#modalDisplayAddress').text(selectedCustomer.address || 'Address: N/A');
+    $('#modalDisplayPhone').text('Phone: ' + (selectedCustomer.phone || 'N/A'));
+    $('#modalDisplayGst').text('GST: ' + (selectedCustomer.gstnumber || 'N/A'));
+    $('#modalDisplayPan').text('PAN: ' + (selectedCustomer.panno || 'N/A'));
+    $('#modalDisplayState').text('State: ' + (selectedCustomer.state || 'N/A'));
+
+    $('#modalSelectedName').text(selectedCustomer.name);
+    $('#modalSelectedId').text(selectedCustomer.customer_id);
+    $('#modalSelectedCustomer').show();
+    $('#modalCustomerDisplay').show();
+    $('#modalNewCustomerForm').hide();
+    $('#modalCustomerSearch').val(selectedCustomer.name || '');
+    $('#modalCustomerSearch').addClass('customer-selected');
+    $('#modalUpdateCustomerBtn').prop('disabled', false);
+
+    // Show the modal
+    $('#changeCustomerModal').modal('show');
+}
+
+/**
  * Check and add new customer
  */
 function checkAndAddNewCustomer(name, searchResultsContainer) {

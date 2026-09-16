@@ -35,9 +35,9 @@
                        value="0" step="0.01" min="0">
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">Bill Size</label>
-                <input type="text" name="size" id="size" class="form-control" value="440" readonly>
-            </div>
+    <label class="form-label">Bill Size (rows per page)</label>
+    <input type="number" name="size" id="size" class="form-control" value="15" min="5" max="50">
+</div>
         </div>
 
         <hr>
