@@ -97,11 +97,38 @@
                             <input type="text" name="company_phone" class="form-control" 
                                    value="{{ $settings->company_phone }}">
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label">Phone Number 2</label>
-                            <input type="text" name="company_phone2" class="form-control" 
-                                   value="{{ $settings->company_phone2 }}">
-                        </div>
+                        {{-- Tagline --}}
+<div class="col-md-12 mb-3">
+    <label class="form-label">Tagline / Business Description</label>
+    <input type="text" name="tagline" class="form-control"
+           value="{{ old('tagline', $settings->tagline ?? 'A House of Woollen, Cashmilon, Embroidered, Jamawar Shawls, Suits & Lohi') }}"
+           placeholder="A House of Woollen, Cashmilon, Embroidered, Jamawar Shawls, Suits & Lohi">
+    <small class="text-muted">Displayed below the company name on the invoice header</small>
+</div>
+{{-- Phone 2 --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Company Phone 2</label>
+    <input type="text" name="company_phone_2" class="form-control"
+           value="{{ old('company_phone_2', $settings->company_phone_2 ?? '') }}"
+           placeholder="+91-6280845993">
+    <small class="text-muted">Optional</small>
+</div>
+
+{{-- Email --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Company Email</label>
+    <input type="email" name="company_email" class="form-control"
+           value="{{ old('company_email', $settings->company_email ?? '') }}"
+           placeholder="info@abshawls.com">
+</div>
+
+{{-- Website --}}
+<div class="col-md-6 mb-3">
+    <label class="form-label">Company Website</label>
+    <input type="text" name="company_website" class="form-control"
+           value="{{ old('company_website', $settings->company_website ?? '') }}"
+           placeholder="www.abshawls.com">
+</div>
                         <div class="mb-2">
                             <label class="form-label">Footer Text (e.g., For A.B Shawls)</label>
                             <input type="text" name="footer_text" class="form-control" 

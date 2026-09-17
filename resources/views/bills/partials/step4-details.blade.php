@@ -36,7 +36,7 @@
             </div>
             <div class="col-md-3 mb-3">
     <label class="form-label">Bill Size (rows per page)</label>
-    <input type="number" name="size" id="size" class="form-control" value="15" min="5" max="50">
+    <input type="number" name="size" id="size" class="form-control" value="16" min="5" max="50">
 </div>
         </div>
 

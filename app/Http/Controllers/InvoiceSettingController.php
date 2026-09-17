@@ -27,7 +27,10 @@ class InvoiceSettingController extends Controller
             'company_address' => 'nullable|string|max:500',
             'company_gst' => 'nullable|string|max:100',
             'company_phone' => 'nullable|string|max:50',
-            'company_phone2' => 'nullable|string|max:50',
+            'tagline'          => 'nullable|string',
+            'company_phone_2'  => 'nullable|string|max:50',
+            'company_email'    => 'nullable|email|max:150',
+            'company_website'  => 'nullable|string|max:200',
             'bank_name' => 'nullable|string|max:255',
             'bank_account' => 'nullable|string|max:100',
             'bank_ifsc' => 'nullable|string|max:50',
@@ -46,13 +49,16 @@ class InvoiceSettingController extends Controller
         }
 
         $settings = InvoiceSetting::getSettings();
-
+        
         $settings->update([
             'company_name' => $request->company_name,
             'company_address' => $request->company_address,
             'company_gst' => $request->company_gst,
             'company_phone' => $request->company_phone,
-            'company_phone2' => $request->company_phone2,
+            'company_phone_2' => $request->company_phone_2,
+            'tagline'          => $request->tagline,
+            'company_email'    => $request->company_email,
+            'company_website'  => $request->company_website,
             'bank_name' => $request->bank_name,
             'bank_account' => $request->bank_account,
             'bank_ifsc' => $request->bank_ifsc,

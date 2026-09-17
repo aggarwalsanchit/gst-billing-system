@@ -17,6 +17,9 @@ class InvoiceSetting extends Model
         'company_gst',
         'company_phone',
         'company_phone_2',
+        'tagline',
+        'company_email',
+        'company_website',
         'company_logo',
         'bank_name',
         'bank_account',
@@ -27,6 +30,7 @@ class InvoiceSetting extends Model
         'footer_text',
         'default_gst_rate',
         'invoice_notes'
+
     ];
 
     protected $casts = [

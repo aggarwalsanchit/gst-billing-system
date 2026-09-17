@@ -77,6 +77,9 @@
             <span class="product-count">Total: {{ $products->count() }} products</span>
         </div>
         <div>
+            <a href="{{ route('catalog.import-form') }}" class="btn btn-warning btn-sm">
+                <i class="fas fa-file-import"></i> Import PDF
+            </a>
             <form action="{{ route('catalog.export-pdf') }}" method="POST" style="display: inline;">
                 @csrf
                 <button type="submit" class="btn btn-success btn-sm">

@@ -23,7 +23,7 @@ class InvoiceController extends Controller
         $settings = InvoiceSetting::getSettings();
         $totals = InvoiceHelper::calculateTotals($bill);
 
-        $itemsPerPage = 12;
+        $itemsPerPage = 13;
         $itemPages = InvoiceHelper::paginateItems($bill->items->toArray(), $itemsPerPage);
 
         $pageTotals = [];

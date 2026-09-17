@@ -25,6 +25,18 @@
         $isLastPage = ($pageIndex + 1) == $totalPages;
         $pageSubtotal = $pageTotals[$pageIndex] ?? 0;
         $showSummary = $isLastPage;
+
+        // ---- Compute discounted page total (same basis as Amount column) ----
+        $overallPct = (float) ($bill->discount ?? 0);
+        $factor     = 1 - ($overallPct / 100);
+
+        $pageDiscountedTotal = 0;
+        foreach ($pageItems as $pi) {
+            $g = $pi['qty'] * $pi['price'];
+            $d = $g * ((float)($pi['discount'] ?? 0) / 100);
+            $baseNet = $g - $d;
+            $pageDiscountedTotal += $baseNet * $factor;
+        }
     @endphp
 
     <div class="invoice-page"
@@ -36,86 +48,168 @@
             background-size: initial;">
 
         <!-- ===== TAX INVOICE HEADER ===== -->
-        <div style="text-align: center; margin-bottom: 0px;">
-            <h2 style="font-weight: bold; margin: 0; font-size: 16px; text-decoration: underline;">TAX INVOICE</h2>
+        <div style="text-align: center; margin: 0; padding: 0;">
+            <h2 style="font-weight: bold; margin: 0; padding: 0; font-size: 16px; text-decoration: underline; line-height: 1;">TAX INVOICE</h2>
         </div>
 
-        <!-- ===== HEADER BOX WITH IMAGE ===== -->
-        <div style="border: 2px solid #000; padding: 4px; text-align: center; margin-bottom: 0px; overflow: hidden;">
-            <img src="{{ asset('images/topi.jpg') }}"
-                 alt="{{ $settings->company_name ?? 'A.B Shawls' }}"
-                 style="max-height: 100px; max-width: 100%; width: auto; height: auto; display: block; margin: 0 auto;">
+        <!-- ===== HEADER BOX ===== -->
+        <div style="border: 2px solid #000; padding: 6px 8px; margin-bottom: 0px; overflow: hidden;">
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 10%; vertical-align: top; text-align: left;">
+                        <div style="font-size: 11px; font-weight: bold; line-height: 1.2; margin-bottom: 6px;">
+                            GST No. {{ $settings->company_gst ?? '' }}
+                        </div>
+                        <img src="{{ asset('images/lakshmi.jpg') }}"
+                             alt=""
+                             style="width: 55px; height: 55px; display: block; object-fit: contain;">
+                    </td>
+
+                    <td style="width: 70%; vertical-align: middle; text-align: center; padding: 0 6px;">
+                        <div style="font-family: 'Arial Black', Arial, sans-serif; font-weight: 900; font-size: 42px; line-height: 1; color: #000; letter-spacing: 1px;">
+                            {{ $settings->company_name ?? '' }}
+                        </div>
+
+                        @if(!empty($settings->tagline))
+                        <div style="margin-top: 3px;">
+                            <span style="display: inline-block; border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 2px 8px; font-family: Arial, sans-serif; font-weight: 900; font-size: 11px; color: #000; line-height: 1.2;">
+                                {{ $settings->tagline }}
+                            </span>
+                        </div>
+                        @endif
+
+                        @if(!empty($settings->company_address))
+                        <div style="font-family: Arial, sans-serif; font-weight: 900; font-size: 12px; color: #000; margin-top: 2px; line-height: 1.2;">
+                            {{ $settings->company_address }}
+                        </div>
+                        @endif
+                    </td>
+
+                    <td style="width: 15%; vertical-align: top; text-align: right;">
+                        <div style="font-size: 11px; font-weight: bold; line-height: 1.3; margin-bottom: 6px;">
+                            @if(!empty($settings->company_phone))
+                                <div><span style="color: #1a4a8a;">&#128222;</span> {{ $settings->company_phone }}</div>
+                            @endif
+                            @if(!empty($settings->company_phone_2))
+                                <div><span style="color: #1a4a8a;">&#128222;</span> {{ $settings->company_phone_2 }}</div>
+                            @endif
+                        </div>
+                        <img src="{{ asset('images/ganesh.jpg') }}"
+                             alt=""
+                             style="width: 55px; height: 55px; display: block; object-fit: contain; margin-left: auto;">
+                    </td>
+                </tr>
+            </table>
+
         </div>
 
         <!-- ===== INVOICE DETAILS ===== -->
-        <div style="display: flex; justify-content: space-between; border: 1px solid #000; border-top: 0; padding: 6px 8px; margin-bottom: 0px;">
-            <div>
-                <strong>Invoice No.:-</strong> {{ $bill->bill_id }}
-            </div>
-            <div>
-                <strong>Dated:-</strong> {{ \Carbon\Carbon::parse($bill->bill_date)->format('d/m/Y') }}
-            </div>
-            @if($pageIndex > 0)
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #000; border-top: 0; padding: 6px 8px; margin-bottom: 0px;">
+
+            <div style="line-height: 1.4;">
                 <div>
-                    <strong>Page:</strong> {{ $pageIndex + 1 }}/{{ $totalPages }}
+                    <strong>Invoice No.:-</strong> {{ $bill->bill_id }}
                 </div>
-            @endif
+                <div>
+                    <strong>Dated:-</strong> {{ \Carbon\Carbon::parse($bill->bill_date)->format('d/m/Y') }}
+                </div>
+            </div>
+
+            <div style="line-height: 1.4; text-align: right;">
+                @if(!empty($settings->company_email))
+                    <div>
+                        <span style="color: #c0392b;">&#9993;</span>
+                        <strong>Email:-</strong> {{ $settings->company_email }}
+                    </div>
+                @endif
+                @if(!empty($settings->company_website))
+                    <div>
+                        <span style="color: #1a4a8a;">&#127760;</span>
+                        <strong>Website:-</strong> {{ $settings->company_website }}
+                    </div>
+                @endif
+            </div>
+
         </div>
 
         <!-- ===== CUSTOMER DETAILS ===== -->
         <div style="border: 1px solid #000; border-top: 0; padding: 6px 8px; margin-bottom: 0px;">
-            <div>
-                <strong>Party Details:-</strong>
-                <span style="font-weight: bold; text-decoration: underline;">{{ $bill->customer->name ?? 'N/A' }}</span>
-                @unless($bill->customer->gstnumber)
-                    <span style="font-weight: bold;"> (Unauthorised)</span>
-                @endunless
-            </div>
-            <div>
-                <strong>Address:-</strong> {{ $bill->customer->address ?? '' }}
-            </div>
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <strong>Buyer Details:-</strong>
+                    <span style="font-weight: bold; text-decoration: underline;">{{ $bill->customer->name ?? 'N/A' }}</span>
+                    @unless($bill->customer->gstnumber)
+                        <span style="font-weight: bold;"> (Unauthorised)</span>
+                    @endunless
+                </div>
                 @if($bill->customer->gstnumber)
-                    <div>
+                    <div style="text-align: right;">
                         <strong>GSTIN/UIN:-</strong> {{ $bill->customer->gstnumber }}
                     </div>
                 @endif
-                <div>
-                    <strong>PhoneNo.-</strong> {{ $bill->customer->phone ?? '' }}
-                </div>
             </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 2px;">
+                <div style="flex: 1 1 auto;">
+                    <strong>Address:-</strong> {{ $bill->customer->address ?? '' }}
+                </div>
+                @if(!empty($bill->customer->phone))
+                <div style="flex: 0 0 auto; text-align: right; margin-left: 10px;">
+                    <span style="color: #1a4a8a;">&#128222;</span>
+                    +91-{{ $bill->customer->phone }}
+                </div>
+                @endif
+            </div>
+
         </div>
 
         <!-- ===== ITEMS TABLE ===== -->
         @php
             $anyItemDiscount = collect($bill->items)->contains(fn($i) => ((float)($i->discount ?? 0)) > 0);
-            $colCount = $anyItemDiscount ? 9 : 6;
+            $overallDiscPct = (float) ($bill->discount ?? 0);
+            $showDiscountCols = $anyItemDiscount || $overallDiscPct > 0;
+            $colCount = $showDiscountCols ? 8 : 6;
         @endphp
 
         <table style="width: 100%; border-collapse: collapse; border: 1px solid #000; border-bottom: 0; font-size: 11px; margin-bottom: 0px;">
             <thead>
                 <tr style="background: #f0f0f0; border-bottom: 2px solid #000;">
-                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $anyItemDiscount ? 'width: 6%;' : 'width: 8%;' }}">Qty</th>
-                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $anyItemDiscount ? 'width: 6%;' : 'width: 8%;' }}">Unit</th>
-                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: left; {{ $anyItemDiscount ? 'width: 30%;' : 'width: 40%;' }}">Particular</th>
-                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $anyItemDiscount ? 'width: 10%;' : 'width: 12%;' }}">HSN/SAC</th>
-                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; {{ $anyItemDiscount ? 'width: 10%;' : 'width: 12%;' }}">Price (Rs.)</th>
-                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; {{ $anyItemDiscount ? 'width: 11%;' : 'width: 20%;' }}">Amount (Rs.)</th>
+                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $showDiscountCols ? 'width: 6%;' : 'width: 8%;' }}">Qty</th>
+                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $showDiscountCols ? 'width: 6%;' : 'width: 8%;' }}">Unit</th>
+                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: left; {{ $showDiscountCols ? 'width: 30%;' : 'width: 40%;' }}">Particular</th>
+                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; {{ $showDiscountCols ? 'width: 10%;' : 'width: 12%;' }}">HSN/SAC</th>
+                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; {{ $showDiscountCols ? 'width: 10%;' : 'width: 12%;' }}">Item Price (Rs.)</th>
 
-                    @if($anyItemDiscount)
-                        <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; width: 7%;">Disc %</th>
-                        <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; width: 10%;">Disc Amt</th>
-                        <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; width: 10%;">Net (Rs.)</th>
+                    @if($showDiscountCols)
+                        <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: center; width: 8%;">Disc %</th>
+                        <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; width: 12%;">Disc Amt</th>
                     @endif
+
+                    <th style="border: 1px solid #000; border-top: 0; padding: 4px 3px; text-align: right; {{ $showDiscountCols ? 'width: 18%;' : 'width: 20%;' }}">Amount (Rs.)</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($pageItems as $index => $item)
                     @php
-                        $gross   = $item['qty'] * $item['price'];
-                        $discPct = $item['discount'] ?? 0;
-                        $discAmt = $gross * ($discPct / 100);
+                        $gross       = $item['qty'] * $item['price'];
+                        $itemDiscPct = (float) ($item['discount'] ?? 0);
+
+                        $combinedDiscPct = (1 - ((1 - $itemDiscPct / 100) * (1 - $overallDiscPct / 100))) * 100;
+
+                        $discAmt = $gross * ($combinedDiscPct / 100);
                         $net     = $gross - $discAmt;
+
+                        if ($itemDiscPct > 0 && $overallDiscPct > 0) {
+                            $displayDiscPct = $combinedDiscPct;
+                        } elseif ($itemDiscPct > 0) {
+                            $displayDiscPct = $itemDiscPct;
+                        } elseif ($overallDiscPct > 0) {
+                            $displayDiscPct = $overallDiscPct;
+                        } else {
+                            $displayDiscPct = 0;
+                        }
                     @endphp
                     <tr>
                         <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: center;">{{ $item['qty'] }}</td>
@@ -126,19 +220,19 @@
                         </td>
                         <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: center;">{{ $item['nsn_code'] ?? '' }}</td>
                         <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: right;">{{ number_format($item['price'], 2) }}</td>
-                        <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: right;">{{ number_format($gross, 2) }}</td>
 
-                        @if($anyItemDiscount)
+                        @if($showDiscountCols)
                             <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: center;">
-                                {{ $discPct > 0 ? number_format($discPct, 2) : '-' }}
+                                {{ $displayDiscPct > 0 ? number_format($displayDiscPct, 2) : '-' }}
                             </td>
                             <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: right;">
                                 {{ $discAmt > 0 ? number_format($discAmt, 2) : '-' }}
                             </td>
-                            <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: right;">
-                                {{ number_format($net, 2) }}
-                            </td>
                         @endif
+
+                        <td style="border-left: 1px solid #000; border-right: 1px solid #000; padding: 3px; text-align: right;">
+                            {{ number_format($showDiscountCols ? $net : $gross, 2) }}
+                        </td>
                     </tr>
                 @endforeach
 
@@ -157,174 +251,248 @@
             </tbody>
         </table>
 
-        <!-- ===== SUMMARY (Only on last page) ===== -->
+        {{-- ============================================================ --}}
+        {{-- ===== PAGE TOTAL / PAGE NUMBER — only if multi-page ===== --}}
+        {{-- ============================================================ --}}
+        @if($totalPages > 1)
+        <div style="margin-top: 0px; text-align: right; border: 1px solid #000; border-top: 0; padding: 3px 5px;">
+            @unless($showSummary)
+                <strong>Page Total: Rs. {{ number_format($pageDiscountedTotal, 2) }}</strong>
+            @endunless
+            <span style="margin-left: 20px;">Page {{ $pageIndex + 1 }}/{{ $totalPages }}</span>
+        </div>
+        @endif
+
+        {{-- ============================================================ --}}
+        {{-- ========== SUMMARY — LAST PAGE ONLY ========== --}}
+        {{-- ============================================================ --}}
         @if($showSummary)
         @php
-            $hasOverallDiscount = ($totals['overall_discount_pct'] ?? 0) > 0;
-            $totalRowValue = $totals['net_subtotal'];
-            $showSubTotal = $hasOverallDiscount;
+            // ---- Previous pages total: discounted sum of every prior page's items ----
+            $previousPagesTotal = 0;
+            for ($i = 0; $i < $pageIndex; $i++) {
+                foreach ($itemPages[$i] as $pi) {
+                    $g = $pi['qty'] * $pi['price'];
+                    $d = $g * ((float)($pi['discount'] ?? 0) / 100);
+                    $baseNet = $g - $d;
+                    $previousPagesTotal += $baseNet * $factor;
+                }
+            }
+
+            // ---- Current page total: discounted sum of items on this page ----
+            $currentPageTotal = $pageDiscountedTotal;
+
+            // ---- Combined total (all pages) ----
+            $totalAfterDiscount = $previousPagesTotal + $currentPageTotal;
+
+            // ---- Taxable base = Total + Packaging ----
+            $taxableBase = $totalAfterDiscount + ($bill->package ?? 0);
+
+            $isPunjab = $bill->customer
+                && trim(strtolower($bill->customer->state ?? '')) == 'punjab';
+            $gstRate = \App\Models\GstSetting::getRate();
+
+            if ($isPunjab) {
+                $cgst = $taxableBase * ($gstRate / 200);
+                $sgst = $taxableBase * ($gstRate / 200);
+                $igst = 0;
+                $taxType = 'cgst_sgst';
+            } else {
+                $cgst = 0;
+                $sgst = 0;
+                $igst = $taxableBase * ($gstRate / 100);
+                $taxType = 'igst';
+            }
+
+            $grossTotal = $taxableBase;
+            $grandTotal = $taxableBase + $cgst + $sgst + $igst + ($bill->transport ?? 0);
         @endphp
 
         <div style="margin-top: 0px;">
-    <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: Arial, Helvetica, sans-serif; border: 1px solid #000;">
-        <tbody>
-            {{-- ===== TOTAL ===== --}}
-            <tr>
-                <td style="width: 20%; text-align: center; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                    {{ $bill->items->sum('qty') }}
-                </td>
-                <td style="width: 30%; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
-                    Total
-                </td>
-                <td style="width: 20%; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;"></td>
-                <td style="width: 30%; text-align: right; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000;">
-                    Rs. {{ number_format($totalRowValue, 2) }}
-                </td>
-            </tr>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: Arial, Helvetica, sans-serif; border: 1px solid #000;">
+                <tbody>
+                    {{-- Previous / Current page rows (only when multi-page) --}}
+                    @if($pageIndex > 0)
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                            Previous Pages Total
+                        </td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            Rs. {{ number_format($previousPagesTotal, 2) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                            Current Page Total
+                        </td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            Rs. {{ number_format($currentPageTotal, 2) }}
+                        </td>
+                    </tr>
+                    @endif
 
-            {{-- ===== OVERALL DISCOUNT ===== --}}
-            @if($hasOverallDiscount)
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    Discount --- {{ $totals['overall_discount_pct'] }}%
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    - Rs. {{ number_format($totals['overall_discount_amount'], 2) }}
-                </td>
-            </tr>
-            @endif
+                    {{-- Total --}}
+                    <tr>
+                        <td style="width: 20%; text-align: center; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+                            {{ $bill->items->sum('qty') }}
+                        </td>
+                        <td style="width: 30%; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;">
+                            Total
+                        </td>
+                        <td style="width: 20%; background: #f0f0f0; border-bottom: 1px solid #000; border-right: 1px solid #000;"></td>
+                        <td style="width: 30%; text-align: right; padding: 2px 5px; font-weight: 700; background: #f0f0f0; border-bottom: 1px solid #000;">
+                            Rs. {{ number_format($totalAfterDiscount, 2) }}
+                        </td>
+                    </tr>
 
-            {{-- ===== SUB TOTAL ===== --}}
-            @if($showSubTotal)
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    Sub Total (After Discount)
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    Rs. {{ number_format($totals['after_discount'], 2) }}
-                </td>
-            </tr>
-            @endif
+                    {{-- Packaging --}}
+                    @if($bill->package > 0)
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">Packaging</td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            + Rs. {{ number_format($bill->package, 2) }}
+                        </td>
+                    </tr>
+                    @endif
 
-            {{-- ===== TRANSPORTATION ===== --}}
-            @if($bill->transport > 0)
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    Transportation
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    + Rs. {{ number_format($bill->transport, 2) }}
-                </td>
-            </tr>
-            @endif
+                    {{-- Gross Total --}}
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">Gross Total</td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            Rs. {{ number_format($grossTotal, 2) }}
+                        </td>
+                    </tr>
 
-            {{-- ===== PACKAGING ===== --}}
-            @if($bill->package > 0)
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    Packaging
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    + Rs. {{ number_format($bill->package, 2) }}
-                </td>
-            </tr>
-            @endif
+                    {{-- GST --}}
+                    @if($taxType == 'cgst_sgst')
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">CGST --- {{ $gstRate/2 }}%</td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            + Rs. {{ number_format($cgst, 2) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">SGST --- {{ $gstRate/2 }}%</td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            + Rs. {{ number_format($sgst, 2) }}
+                        </td>
+                    </tr>
+                    @elseif($taxType == 'igst')
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">IGST --- {{ $gstRate }}%</td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            + Rs. {{ number_format($igst, 2) }}
+                        </td>
+                    </tr>
+                    @endif
 
-            {{-- ===== GROSS TOTAL ===== --}}
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    Gross Total
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    Rs. {{ number_format($totals['gross_total'], 2) }}
-                </td>
-            </tr>
+                    {{-- Transportation --}}
+                    @if($bill->transport > 0)
+                    <tr>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">Transportation</td>
+                        <td style="border-right: 1px solid #000;"></td>
+                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                            + Rs. {{ number_format($bill->transport, 2) }}
+                        </td>
+                    </tr>
+                    @endif
 
-            {{-- ===== GST ===== --}}
-            @if($totals['tax_type'] == 'cgst_sgst')
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    CGST --- {{ $totals['gst_rate']/2 }}%
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    + Rs. {{ number_format($totals['cgst'], 2) }}
-                </td>
-            </tr>
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    SGST --- {{ $totals['gst_rate']/2 }}%
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    + Rs. {{ number_format($totals['sgst'], 2) }}
-                </td>
-            </tr>
-            @elseif($totals['tax_type'] == 'igst')
-            <tr>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                    IGST --- {{ $totals['gst_rate'] }}%
-                </td>
-                <td style="border-right: 1px solid #000;"></td>
-                <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                    + Rs. {{ number_format($totals['igst'], 2) }}
-                </td>
-            </tr>
-            @endif
-
-            {{-- ===== GRAND TOTAL ===== --}}
-            <tr style="font-weight: 700;">
-                <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
-                <td style="padding: 5px 5px; font-size: 16px; font-weight: 700; border-right: 1px solid #000; border-top: 2px solid #000;">
-                    Grand Total
-                </td>
-                <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
-                <td style="text-align: right; padding: 5px 5px; font-size: 16px; font-weight: 700; border-top: 2px solid #000;">
-                    Rs. {{ number_format($totals['grand_total'], 2) }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-        <!-- ===== TOTALS ROW ===== -->
-        <div style="margin-top: 0px; border: 1px solid #000; border-top: 0; padding: 4px 5px;">
-            <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
-                <tr>
-                    <td style="width: 20%; font-weight: bold; padding: 3px 5px; font-size: 14px; border: 1px solid;">Total</td>
-                    <td style="width: 25%; font-weight: bold; padding: 3px 5px; font-size: 14px; border: 1px solid;">Total Tax</td>
-                    <td style="width: 55%; font-weight: bold; padding: 3px 5px; font-size: 14px;">Total (In Words)</td>
-                </tr>
-                <tr>
-                    <td style="padding: 3px 5px; font-weight: bold; font-size: 15px; border: 1px solid;">
-                        Rs. {{ number_format($totals['grand_total'], 2) }}
-                    </td>
-                    <td style="padding: 3px 5px; font-weight: bold; font-size: 15px; border: 1px solid;">
-                        Rs. {{ number_format($totals['cgst'] + $totals['sgst'] + $totals['igst'], 2) }}
-                    </td>
-                    <td style="padding: 3px 5px; font-size: 13px;">
-                        {{ $totals['amount_in_words'] }}
-                    </td>
-                </tr>
+                    {{-- Grand Total --}}
+                    <tr style="font-weight: 700;">
+                        <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
+                        <td style="padding: 5px; font-size: 16px; font-weight: 700; border-right: 1px solid #000; border-top: 2px solid #000;">Grand Total</td>
+                        <td style="border-right: 1px solid #000; border-top: 2px solid #000;"></td>
+                        <td style="text-align: right; padding: 5px; font-size: 16px; font-weight: 700; border-top: 2px solid #000;">
+                            Rs. {{ number_format($grandTotal, 2) }}
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 
-        <!-- ===== NOTES ===== -->
+        <!-- ===== TAX BREAKDOWN (last page only) ===== -->
         <div style="margin-top: 0px; border: 1px solid #000; border-top: 0; padding: 4px 5px;">
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+            <table style="width: 100%; font-size: 13px; border-collapse: collapse;">
+                <thead>
+                    @if($taxType == 'cgst_sgst')
+                        <tr>
+                            <td rowspan="2" style="font-weight: bold; border: 1px solid; vertical-align: middle; text-align: center;">Total</td>
+                            <td colspan="2" style="font-weight: bold; border: 1px solid; text-align: center;">CGST</td>
+                            <td colspan="2" style="font-weight: bold; border: 1px solid; text-align: center;">SGST</td>
+                            <td rowspan="2" style="font-weight: bold; border: 1px solid; vertical-align: middle; text-align: center;">Total Tax</td>
+                            <td rowspan="2" style="font-weight: bold; border: 1px solid; vertical-align: middle; text-align: center;">Total (In Words)</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; border: 1px solid; text-align: center;">Rate</td>
+                            <td style="font-weight: bold; border: 1px solid; text-align: center;">Amount</td>
+                            <td style="font-weight: bold; border: 1px solid; text-align: center;">Rate</td>
+                            <td style="font-weight: bold; border: 1px solid; text-align: center;">Amount</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; font-size: 14px; border: 1px solid; text-align: center; vertical-align: middle;">Rs. {{ number_format($grandTotal, 2) }}</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center;">{{ $gstRate/2 }}%</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center;">Rs. {{ number_format($cgst, 2) }}</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center;">{{ $gstRate/2 }}%</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center;">Rs. {{ number_format($sgst, 2) }}</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center; vertical-align: middle;">Rs. {{ number_format($cgst + $sgst, 2) }}</td>
+                            <td style="font-size: 12px; border: 1px solid; vertical-align: middle;">{{ \App\Helpers\InvoiceHelper::numberToWords($grandTotal) }}</td>
+                        </tr>
+                    @elseif($taxType == 'igst')
+                        <tr>
+                            <td rowspan="2" style="font-weight: bold; border: 1px solid; vertical-align: middle; text-align: center;">Total</td>
+                            <td colspan="2" style="font-weight: bold; border: 1px solid; text-align: center;">IGST</td>
+                            <td rowspan="2" style="font-weight: bold; border: 1px solid; vertical-align: middle; text-align: center;">Total Tax</td>
+                            <td rowspan="2" style="font-weight: bold; border: 1px solid; vertical-align: middle; text-align: center;">Total (In Words)</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; border: 1px solid; text-align: center;">Rate</td>
+                            <td style="font-weight: bold; border: 1px solid; text-align: center;">Amount</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; font-size: 14px; border: 1px solid; text-align: center; vertical-align: middle;">Rs. {{ number_format($grandTotal, 2) }}</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center;">{{ $gstRate }}%</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center;">Rs. {{ number_format($igst, 2) }}</td>
+                            <td style="font-weight: bold; font-size: 13px; border: 1px solid; text-align: center; vertical-align: middle;">Rs. {{ number_format($igst, 2) }}</td>
+                            <td style="font-size: 12px; border: 1px solid; vertical-align: middle;">{{ \App\Helpers\InvoiceHelper::numberToWords($grandTotal) }}</td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td style="font-weight: bold; border: 1px solid;">Total</td>
+                            <td style="font-weight: bold; border: 1px solid;">Total (In Words)</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; font-size: 14px; border: 1px solid;">Rs. {{ number_format($grandTotal, 2) }}</td>
+                            <td style="font-size: 12px; border: 1px solid;">{{ \App\Helpers\InvoiceHelper::numberToWords($grandTotal) }}</td>
+                        </tr>
+                    @endif
+                </thead>
+            </table>
+        </div>
+        @endif
+        {{-- ===== END SUMMARY ===== --}}
+
+        {{-- ============================================================ --}}
+        {{-- ===== NOTES / BANK / FOOTER — every page ===== --}}
+        {{-- ============================================================ --}}
+
+        <!-- NOTES -->
+        <div style="margin-top: 0px; border: 1px solid #000; border-top: 0; padding: 4px 5px;">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 13px;">
                 <div>
                     <strong>Despatched Thru:</strong> {{ $bill->note->despatch ?? '' }}
                 </div>
@@ -334,27 +502,19 @@
             </div>
         </div>
 
-        <!-- ===== BANK DETAILS ===== -->
+        <!-- BANK -->
         <div style="margin-top: 0px; border: 1px solid #000; border-top: 0; padding: 4px 5px;">
-            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-                <div>
-                    <strong>Bank Name:- {{ $settings->bank_name ?? 'BANK OF BARODA' }}</strong>
-                </div>
-                <div>
-                    <strong>Account No.:- {{ $settings->bank_account ?? '70940200002257' }}</strong>
-                </div>
-                <div>
-                    <strong>IFSC Code:- {{ $settings->bank_ifsc ?? 'BARB0DBAMRI' }}</strong>
-                </div>
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 13px;">
+                <div><strong>Bank Name:- {{ $settings->bank_name ?? 'BANK OF BARODA' }}</strong></div>
+                <div><strong>Account No.:- {{ $settings->bank_account ?? '70940200002257' }}</strong></div>
+                <div><strong>IFSC Code:- {{ $settings->bank_ifsc ?? 'BARB0DBAMRI' }}</strong></div>
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
+        <!-- FOOTER -->
         <div style="margin-top: 0px; border: 1px solid #000; border-top: 0; padding: 4px 5px; display: flex; justify-content: space-between; flex-wrap: wrap;">
             <div style="font-size: 11px;">
-                @php
-                    $terms = $settings->getTermsArray();
-                @endphp
+                @php $terms = $settings->getTermsArray(); @endphp
                 @foreach($terms as $term)
                     {{ $term }}<br>
                 @endforeach
@@ -365,17 +525,14 @@
             </div>
         </div>
 
-        @else
-        <!-- ===== PAGE TOTAL FOR NON-LAST PAGES ===== -->
-        <div style="margin-top: 0px; text-align: right; border: 1px solid #000; border-top: 0; padding: 3px 5px;">
-            <strong>Page Total: Rs. {{ number_format($pageSubtotal, 2) }}</strong>
-            <span style="margin-left: 20px;">Page {{ $pageIndex + 1 }}/{{ $totalPages }}</span>
-        </div>
+        {{-- ============================================================ --}}
+        {{-- ===== CONTINUED NOTICE — non-last pages, at the very end ===== --}}
+        {{-- ============================================================ --}}
+        @unless($showSummary)
+            <div style="margin-top: 0px; text-align: center; font-style: italic; font-size: 12px; border: 1px dashed #000; border-top: 0; padding: 3px;">
+                Continued on next page...
+            </div>
+        @endunless
 
-        <!-- ===== CONTINUED NOTICE ===== -->
-        <div style="margin-top: 0px; text-align: center; font-style: italic; font-size: 12px; border: 1px dashed #000; border-top: 0; padding: 3px;">
-            Continued on next page...
-        </div>
-        @endif
     </div>
 @endforeach

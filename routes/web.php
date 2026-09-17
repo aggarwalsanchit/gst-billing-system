@@ -85,6 +85,11 @@ Route::prefix('catalog')->group(function () {
     Route::get('/', [ProductCatalogController::class, 'index'])->name('catalog.index');
     Route::get('/create', [ProductCatalogController::class, 'create'])->name('catalog.create');
     Route::post('/', [ProductCatalogController::class, 'store'])->name('catalog.store');
+
+    // Import routes MUST come before /{id} routes
+    Route::get('/import', [ProductCatalogController::class, 'importForm'])->name('catalog.import-form');
+    Route::post('/import', [ProductCatalogController::class, 'importPdf'])->name('catalog.import-pdf');
+
     Route::get('/{id}/edit', [ProductCatalogController::class, 'edit'])->name('catalog.edit');
     Route::put('/{id}', [ProductCatalogController::class, 'update'])->name('catalog.update');
     Route::delete('/{id}', [ProductCatalogController::class, 'destroy'])->name('catalog.destroy');

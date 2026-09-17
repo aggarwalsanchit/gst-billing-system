@@ -99,58 +99,79 @@ class InvoiceHelper
     }
 
     /**
-     * Convert number to words.
-     */
-    public static function numberToWords($number)
-    {
-        $no = round($number);
-        $point = round(($number - $no) * 100);
-        $hundred = null;
-        $digits_1 = strlen($no);
+ * Convert number to words.
+ */
+public static function numberToWords($number)
+{
+    $no = (int) round($number);
+    $point = (int) round(($number - $no) * 100);
+
+    $words = [
+        0 => '', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four',
+        5 => 'Five', 6 => 'Six', 7 => 'Seven', 8 => 'Eight', 9 => 'Nine',
+        10 => 'Ten', 11 => 'Eleven', 12 => 'Twelve', 13 => 'Thirteen',
+        14 => 'Fourteen', 15 => 'Fifteen', 16 => 'Sixteen', 17 => 'Seventeen',
+        18 => 'Eighteen', 19 => 'Nineteen', 20 => 'Twenty',
+        30 => 'Thirty', 40 => 'Forty', 50 => 'Fifty',
+        60 => 'Sixty', 70 => 'Seventy', 80 => 'Eighty', 90 => 'Ninety',
+    ];
+
+    $digits = ['', 'Hundred', 'Thousand', 'Lakh', 'Crore'];
+
+    // Helper to convert a 2-digit chunk (0-99) into words
+    $twoDigit = function (int $n) use ($words) {
+        if ($n < 21) {
+            return $words[$n] ?? '';
+        }
+        $tens = (int) (floor($n / 10) * 10);
+        $ones = $n % 10;
+        return trim(($words[$tens] ?? '') . ' ' . ($words[$ones] ?? ''));
+    };
+
+    // Build the whole-number part
+    if ($no === 0) {
+        $result = 'Zero';
+    } else {
+        $chunks = [];
+        $n = $no;
         $i = 0;
-        $str = array();
-
-        $words = array(
-            '0' => '', '1' => 'One', '2' => 'Two', '3' => 'Three',
-            '4' => 'Four', '5' => 'Five', '6' => 'Six', '7' => 'Seven',
-            '8' => 'Eight', '9' => 'Nine', '10' => 'Ten', '11' => 'Eleven',
-            '12' => 'Twelve', '13' => 'Thirteen', '14' => 'Fourteen',
-            '15' => 'Fifteen', '16' => 'Sixteen', '17' => 'Seventeen',
-            '18' => 'Eighteen', '19' => 'Nineteen', '20' => 'Twenty',
-            '30' => 'Thirty', '40' => 'Forty', '50' => 'Fifty',
-            '60' => 'Sixty', '70' => 'Seventy', '80' => 'Eighty',
-            '90' => 'Ninety'
-        );
-
-        $digits = array('', 'Hundred', 'Thousand', 'Lakh', 'Crore');
-
-        while ($i < $digits_1) {
-            $divider = ($i == 2) ? 10 : 100;
-            $number = floor($no % $divider);
-            $no = floor($no / $divider);
-            $i += ($divider == 10) ? 1 : 2;
-
-            if ($number) {
-                $plural = (($counter = count($str)) && $number > 9) ? 's' : null;
-                $hundred = ($counter == 1 && $str[0]) ? ' and ' : null;
-                $str[] = ($number < 21) ?
-                    $words[$number] . " " . $digits[$counter] . $plural . " " . $hundred :
-                    $words[floor($number / 10) * 10] . " " . $words[$number % 10] . " " .
-                    $digits[$counter] . $plural . " " . $hundred;
+        while ($n > 0) {
+            $divider = ($i === 1) ? 10 : 100;   // 1st chunk: 0-99, then 0-99, etc.
+            // Actually: 1st chunk takes last 2 digits, next take 2 digits, then 2, etc.
+            if ($i === 0) {
+                $divider = 100;
             } else {
-                $str[] = null;
+                $divider = 100;
             }
+            $chunk = $n % 100;
+            $n = (int) floor($n / 100);
+
+            if ($chunk > 0) {
+                $chunkWords = $twoDigit($chunk);
+                $scale = $digits[$i] ?? '';
+                if ($i === 1) {
+                    // Indian numbering: 100s digit needs "Hundred" suffix in the previous chunk
+                    // Actually simpler: after first two digits, next are Thousand, Lakh, Crore
+                    $scale = 'Thousand';
+                } elseif ($i === 2) {
+                    $scale = 'Lakh';
+                } elseif ($i === 3) {
+                    $scale = 'Crore';
+                }
+                $chunks[] = trim($chunkWords . ' ' . $scale);
+            }
+            $i++;
         }
-
-        $str = array_reverse($str);
-        $result = implode('', $str);
-
-        if ($point > 0) {
-            $result .= " Rupees " . $words[$point] . " Paise Only";
-        } else {
-            $result .= " Rupees Only";
-        }
-
-        return $result;
+        $result = implode(' ', array_reverse($chunks));
+        $result = trim(preg_replace('/\s+/', ' ', $result));
     }
+
+    // Append paise if any
+    if ($point > 0) {
+        $paiseWords = $twoDigit($point);
+        return $result . ' Rupees ' . $paiseWords . ' Paise Only';
+    }
+
+    return $result . ' Rupees Only';
+}
 }
