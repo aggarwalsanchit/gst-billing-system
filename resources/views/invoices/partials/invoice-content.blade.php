@@ -236,7 +236,39 @@
                     </tr>
                 @endforeach
 
-                @php $remainingRows = $bill->size - count($pageItems); @endphp
+                {{-- ============================================================ --}}
+                {{-- ===== DYNAMIC FILLER ROWS ===== --}}
+                {{-- Single-page bill: bigger budget (26) --}}
+                {{-- Multi-page bill: smaller budgets for non-last and last pages --}}
+                {{-- ============================================================ --}}
+                @php
+                    $isSinglePage = ($totalPages === 1);
+
+                    if ($showSummary) {
+                        // ---- Single-page bill OR last page of a multi-page bill ----
+                        // Single page gets a big budget (26) so short bills look full
+                        // Last page of multi-page uses a smaller total (22) so it doesn't overflow
+                        $basePageSlots = $isSinglePage ? 26 : 22;
+
+                        $isPunjabBill = $bill->customer
+                            && trim(strtolower($bill->customer->state ?? '')) == 'punjab';
+
+                        $summarySlots = 4; // Total, Gross Total, Grand Total, Tax table baseline
+                        $summarySlots += ($bill->package > 0) ? 1 : 0;
+                        $summarySlots += ($bill->transport > 0) ? 1 : 0;
+                        $summarySlots += $isPunjabBill ? 2 : 1; // CGST+SGST or IGST
+                        $summarySlots += 2; // Notes + Bank + Footer baseline
+
+                        $pageSlotBudget = max(6, $basePageSlots - $summarySlots);
+                    } else {
+                        // ---- Non-last pages of a multi-page bill ----
+                        // No summary on these pages → smaller budget keeps them compact
+                        $pageSlotBudget = 20;
+                    }
+
+                    $remainingRows = max(0, $pageSlotBudget - count($pageItems));
+                @endphp
+
                 @for($i = 0; $i < $remainingRows; $i++)
                     <tr>
                         @for($c = 0; $c < $colCount; $c++)
@@ -268,21 +300,26 @@
         {{-- ============================================================ --}}
         @if($showSummary)
         @php
-            // ---- Previous pages total: discounted sum of every prior page's items ----
-            $previousPagesTotal = 0;
+            // ---- Per-page discounted totals for all prior pages ----
+            $perPageTotals = [];
             for ($i = 0; $i < $pageIndex; $i++) {
+                $pgSum = 0;
                 foreach ($itemPages[$i] as $pi) {
                     $g = $pi['qty'] * $pi['price'];
                     $d = $g * ((float)($pi['discount'] ?? 0) / 100);
                     $baseNet = $g - $d;
-                    $previousPagesTotal += $baseNet * $factor;
+                    $pgSum += $baseNet * $factor;
                 }
+                $perPageTotals[$i] = $pgSum;
             }
 
-            // ---- Current page total: discounted sum of items on this page ----
+            // ---- Previous pages total = sum of per-page totals ----
+            $previousPagesTotal = array_sum($perPageTotals);
+
+            // ---- Current page total ----
             $currentPageTotal = $pageDiscountedTotal;
 
-            // ---- Combined total (all pages) ----
+            // ---- Combined total ----
             $totalAfterDiscount = $previousPagesTotal + $currentPageTotal;
 
             // ---- Taxable base = Total + Packaging ----
@@ -311,28 +348,30 @@
         <div style="margin-top: 0px;">
             <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: Arial, Helvetica, sans-serif; border: 1px solid #000;">
                 <tbody>
-                    {{-- Previous / Current page rows (only when multi-page) --}}
+                    {{-- One row per previous page (multi-page only) --}}
                     @if($pageIndex > 0)
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                            Previous Pages Total
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                            Rs. {{ number_format($previousPagesTotal, 2) }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
-                            Current Page Total
-                        </td>
-                        <td style="border-right: 1px solid #000;"></td>
-                        <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
-                            Rs. {{ number_format($currentPageTotal, 2) }}
-                        </td>
-                    </tr>
+                        @foreach($perPageTotals as $i => $pgTotal)
+                        <tr>
+                            <td style="border-right: 1px solid #000;"></td>
+                            <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000;">
+                                Page {{ $i + 1 }} Total
+                            </td>
+                            <td style="border-right: 1px solid #000;"></td>
+                            <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px;">
+                                Rs. {{ number_format($pgTotal, 2) }}
+                            </td>
+                        </tr>
+                        @endforeach
+                        <tr>
+                            <td style="border-right: 1px solid #000;"></td>
+                            <td style="padding: 2px 5px; font-weight: 700; font-size: 12px; border-right: 1px solid #000; border-top: 1px solid #000;">
+                                Current Page {{ $pageIndex + 1 }} Total
+                            </td>
+                            <td style="border-right: 1px solid #000; border-top: 1px solid #000;"></td>
+                            <td style="text-align: right; padding: 2px 5px; font-weight: 700; font-size: 12px; border-top: 1px solid #000;">
+                                Rs. {{ number_format($currentPageTotal, 2) }}
+                            </td>
+                        </tr>
                     @endif
 
                     {{-- Total --}}
@@ -495,6 +534,9 @@
             <div style="display: flex; justify-content: space-between; flex-wrap: wrap; font-size: 13px;">
                 <div>
                     <strong>Despatched Thru:</strong> {{ $bill->note->despatch ?? '' }}
+                </div>
+                <div>
+                    <strong>GR No.:</strong> {{ $bill->note->grno ?? '' }}
                 </div>
                 <div>
                     <strong>Delivery Note:-</strong> {{ $bill->note->deliverynote ?? '' }}

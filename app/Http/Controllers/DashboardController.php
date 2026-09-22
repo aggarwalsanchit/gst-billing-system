@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bill;
 use App\Models\BillId;
 use App\Models\Customer;
-use App\Models\Product;
+use App\Models\AllProduct;
 use App\Models\BillItem;
 
 class DashboardController extends Controller
@@ -18,7 +18,7 @@ class DashboardController extends Controller
         
         // Count totals
         $totalBills = BillId::count();
-        $totalProducts = Product::count();
+        $totalProducts = AllProduct::count();
         $totalCustomers = Customer::count();
         
         // Total sales

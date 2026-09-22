@@ -226,121 +226,114 @@ class BillController extends Controller
      * Add item to bill.
      */
     public function addItem(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'bill_id'     => 'required|string',
-                'customer_id' => 'required|exists:customer,customer_id',
-                'item'        => 'required|string',
-                'qty'         => 'required|integer|min:1',
-                'price'       => 'required|numeric|min:0',
-                'pnumber'     => 'nullable|string',
-                'unit'        => 'nullable|string',
-                'nsn_code'    => 'nullable|string',
-                'database_id' => 'nullable|string',
-                'discount'    => 'nullable|numeric|min:0|max:100',
-            ]);
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'bill_id'     => 'required|string',
+            'customer_id' => 'required|exists:customer,customer_id',
+            'item'        => 'required|string',
+            'qty'         => 'required|integer|min:1',
+            'price'       => 'required|numeric|min:0',
+            'pnumber'     => 'nullable|string',
+            'unit'        => 'nullable|string',
+            'nsn_code'    => 'nullable|string',
+            'database_id' => 'nullable|string',
+            'discount'    => 'nullable|numeric|min:0|max:100',
+        ]);
 
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            $qty     = (float) $request->qty;
-            $price   = (float) $request->price;
-            $discPct = (float) ($request->discount ?? 0);
-
-            $gross   = $qty * $price;
-            $discAmt = $gross * ($discPct / 100);
-            $net     = $gross - $discAmt;
-
-            // ===== Find or create in AllProduct catalog =====
-            $productId = null;
-            $pnumber   = $request->pnumber ?? '';
-
-            if (!empty($pnumber)) {
-                $existingProduct = AllProduct::where('pnumber', $pnumber)->first();
-                if ($existingProduct) {
-                    $productId = $existingProduct->product_id;
-                }
-            }
-
-            if (!$productId) {
-                $existingProduct = AllProduct::where('name', $request->item)->first();
-                if ($existingProduct) {
-                    $productId = $existingProduct->product_id;
-                }
-            }
-
-            if (!$productId) {
-                $newProduct = AllProduct::create([
-                    'name'     => $request->item,
-                    'pnumber'  => $pnumber,
-                    'unit'     => $request->unit ?? 'PCS',
-                    'price'    => $request->price,
-                    'hsn_code' => $request->nsn_code ?? '',
-                ]);
-                $productId = $newProduct->product_id;
-                session()->flash('info', 'New product "' . $request->item . '" has been added to the catalog.');
-            }
-
-            // ===== Create bill item =====
-            if ($request->has('database_id') && $request->database_id) {
-                $product = Product::find($request->database_id);
-                if (!$product) {
-                    return redirect()->back()
-                        ->with('error', 'Product not found in inventory!');
-                }
-
-                if ($product->qty < $qty) {
-                    return redirect()->back()
-                        ->with('error', 'Insufficient stock! Available: ' . $product->qty);
-                }
-
-                BillItem::create([
-                    'bill_id'     => $request->bill_id,
-                    'Product'     => $request->item,
-                    'pnumber'     => $pnumber,
-                    'qty'         => $qty,
-                    'unit'        => $request->unit ?? 'PCS',
-                    'price'       => $price,
-                    'discount'    => $discPct,
-                    'total'       => $gross,
-                    'net_total'   => $net,
-                    'nsn_code'    => $request->nsn_code ?? '',
-                    'database_id' => $request->database_id,
-                    'product_id'  => $productId,
-                ]);
-
-                $product->decrement('qty', $qty);
-            } else {
-                BillItem::create([
-                    'bill_id'     => $request->bill_id,
-                    'Product'     => $request->item,
-                    'pnumber'     => $pnumber,
-                    'qty'         => $qty,
-                    'unit'        => $request->unit ?? 'PCS',
-                    'price'       => $price,
-                    'discount'    => $discPct,
-                    'total'       => $gross,
-                    'net_total'   => $net,
-                    'nsn_code'    => $request->nsn_code ?? '',
-                    'database_id' => null,
-                    'product_id'  => $productId,
-                ]);
-            }
-
-            return redirect()->route('bills.edit', $request->bill_id)
-                ->with('success', 'Item added successfully!');
-
-        } catch (\Exception $e) {
-            \Log::error('addItem error', ['error' => $e->getMessage()]);
+        if ($validator->fails()) {
             return redirect()->back()
-                ->with('error', 'Error adding item: ' . $e->getMessage())
+                ->withErrors($validator)
                 ->withInput();
         }
+
+        $name    = trim($request->item);
+        $pnumber = trim($request->pnumber ?? '');
+
+        // ===== CHECK DUPLICATE IN SAME BILL =====
+        $duplicateQuery = BillItem::where('bill_id', $request->bill_id)
+            ->where('Product', $name);
+
+        if ($pnumber !== '') {
+            $duplicateQuery->where('pnumber', $pnumber);
+        }
+
+        if ($duplicateQuery->exists()) {
+            return redirect()->back()
+                ->with('error', 'Item "' . $name . '" already exists in this bill. Use edit to change quantity.')
+                ->withInput();
+        }
+
+        $qty     = (float) $request->qty;
+        $price   = (float) $request->price;
+        $discPct = (float) ($request->discount ?? 0);
+
+        $gross   = $qty * $price;
+        $discAmt = $gross * ($discPct / 100);
+        $net     = $gross - $discAmt;
+
+        // ===== FIND OR CREATE IN ALLPRODUCTS =====
+        $productId = $this->resolveCatalogProduct($name, $pnumber, $request, $isNew);
+
+        if ($isNew) {
+            session()->flash('info', 'New product "' . $name . '" has been added to the catalog.');
+        }
+
+        // ===== CREATE BILL ITEM =====
+        if ($request->filled('database_id')) {
+            $product = Product::find($request->database_id);
+            if (!$product) {
+                return redirect()->back()->with('error', 'Product not found in inventory!');
+            }
+
+            if ($product->qty < $qty) {
+                return redirect()->back()
+                    ->with('error', 'Insufficient stock! Available: ' . $product->qty);
+            }
+
+            BillItem::create([
+                'bill_id'     => $request->bill_id,
+                'Product'     => $name,
+                'pnumber'     => $pnumber,
+                'qty'         => $qty,
+                'unit'        => $request->unit ?? 'PCS',
+                'price'       => $price,
+                'discount'    => $discPct,
+                'total'       => $gross,
+                'net_total'   => $net,
+                'nsn_code'    => $request->nsn_code ?? '',
+                'database_id' => $request->database_id,
+                'product_id'  => $productId,
+            ]);
+
+            $product->decrement('qty', $qty);
+        } else {
+            BillItem::create([
+                'bill_id'     => $request->bill_id,
+                'Product'     => $name,
+                'pnumber'     => $pnumber,
+                'qty'         => $qty,
+                'unit'        => $request->unit ?? 'PCS',
+                'price'       => $price,
+                'discount'    => $discPct,
+                'total'       => $gross,
+                'net_total'   => $net,
+                'nsn_code'    => $request->nsn_code ?? '',
+                'database_id' => null,
+                'product_id'  => $productId,
+            ]);
+        }
+
+        return redirect()->route('bills.edit', $request->bill_id)
+            ->with('success', 'Item added successfully!');
+
+    } catch (\Exception $e) {
+        \Log::error('addItem error', ['error' => $e->getMessage()]);
+        return redirect()->back()
+            ->with('error', 'Error adding item: ' . $e->getMessage())
+            ->withInput();
     }
+}
 
     /**
      * Remove item from bill.
@@ -609,82 +602,128 @@ class BillController extends Controller
      * Update bill item.
      */
     public function updateItem(Request $request, $demo_id)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'item'     => 'required|string',
-                'qty'      => 'required|integer|min:1',
-                'price'    => 'required|numeric|min:0',
-                'discount' => 'nullable|numeric|min:0|max:100',
-            ]);
+{
+    try {
+        $validator = Validator::make($request->all(), [
+            'item'     => 'required|string',
+            'qty'      => 'required|integer|min:1',
+            'price'    => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
+        ]);
 
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator)
-                    ->withInput();
-            }
-
-            $item = BillItem::findOrFail($demo_id);
-
-            $qty     = (float) $request->qty;
-            $price   = (float) $request->price;
-            $discPct = (float) ($request->discount ?? 0);
-
-            $gross   = $qty * $price;
-            $discAmt = $gross * ($discPct / 100);
-            $net     = $gross - $discAmt;
-
-            $productId = $item->product_id;
-            $pnumber   = $request->pnumber ?? '';
-
-            if (!$productId) {
-                if (!empty($pnumber)) {
-                    $existingProduct = AllProduct::where('pnumber', $pnumber)->first();
-                    if ($existingProduct) {
-                        $productId = $existingProduct->product_id;
-                    }
-                }
-
-                if (!$productId) {
-                    $existingProduct = AllProduct::where('name', $request->item)->first();
-                    if ($existingProduct) {
-                        $productId = $existingProduct->product_id;
-                    }
-                }
-
-                if (!$productId) {
-                    $newProduct = AllProduct::create([
-                        'name'     => $request->item,
-                        'pnumber'  => $pnumber,
-                        'unit'     => $request->unit ?? 'PCS',
-                        'price'    => $request->price,
-                        'hsn_code' => $request->nsn_code ?? '',
-                    ]);
-                    $productId = $newProduct->product_id;
-                    session()->flash('info', 'New product "' . $request->item . '" has been added to the catalog.');
-                }
-            }
-
-            $item->update([
-                'Product'    => $request->item,
-                'pnumber'    => $pnumber,
-                'qty'        => $qty,
-                'unit'       => $request->unit ?? 'PCS',
-                'price'      => $price,
-                'discount'   => $discPct,
-                'total'      => $gross,
-                'net_total'  => $net,
-                'nsn_code'   => $request->nsn_code ?? '',
-                'product_id' => $productId,
-            ]);
-
-            return redirect()->route('bills.edit', $item->bill_id)
-                ->with('success', 'Item updated successfully!');
-
-        } catch (\Exception $e) {
-            \Log::error('updateItem error', ['error' => $e->getMessage()]);
+        if ($validator->fails()) {
             return redirect()->back()
-                ->with('error', 'Error updating item: ' . $e->getMessage());
+                ->withErrors($validator)
+                ->withInput();
         }
+
+        $item = BillItem::findOrFail($demo_id);
+
+        $name    = trim($request->item);
+        $pnumber = trim($request->pnumber ?? '');
+
+        // ===== CHECK DUPLICATE IN SAME BILL (excluding current item) =====
+        $duplicateQuery = BillItem::where('bill_id', $item->bill_id)
+            ->where('Product', $name)
+            ->where('demo_id', '!=', $demo_id);
+
+        if ($pnumber !== '') {
+            $duplicateQuery->where('pnumber', $pnumber);
+        }
+
+        if ($duplicateQuery->exists()) {
+            return redirect()->back()
+                ->with('error', 'Item "' . $name . '" already exists in this bill.')
+                ->withInput();
+        }
+
+        $qty     = (float) $request->qty;
+        $price   = (float) $request->price;
+        $discPct = (float) ($request->discount ?? 0);
+
+        $gross   = $qty * $price;
+        $discAmt = $gross * ($discPct / 100);
+        $net     = $gross - $discAmt;
+
+        // ===== RESOLVE / UPDATE CATALOG PRODUCT =====
+        if ($item->product_id) {
+            // Update the existing linked catalog product
+            $catalog = AllProduct::find($item->product_id);
+
+            if ($catalog) {
+                $catalog->update([
+                    'name'     => $name,
+                    'pnumber'  => $pnumber,
+                    'unit'     => $request->unit ?? $catalog->unit,
+                    'price'    => $price,
+                    'hsn_code' => $request->nsn_code ?? $catalog->hsn_code,
+                ]);
+                $productId = $catalog->product_id;
+            } else {
+                // Linked product was deleted — recreate
+                $productId = $this->resolveCatalogProduct($name, $pnumber, $request, $isNew);
+            }
+        } else {
+            $productId = $this->resolveCatalogProduct($name, $pnumber, $request, $isNew);
+        }
+
+        $item->update([
+            'Product'    => $name,
+            'pnumber'    => $pnumber,
+            'qty'        => $qty,
+            'unit'       => $request->unit ?? 'PCS',
+            'price'      => $price,
+            'discount'   => $discPct,
+            'total'      => $gross,
+            'net_total'  => $net,
+            'nsn_code'   => $request->nsn_code ?? '',
+            'product_id' => $productId,
+        ]);
+
+        return redirect()->route('bills.edit', $item->bill_id)
+            ->with('success', 'Item updated successfully!');
+
+    } catch (\Exception $e) {
+        \Log::error('updateItem error', ['error' => $e->getMessage()]);
+        return redirect()->back()
+            ->with('error', 'Error updating item: ' . $e->getMessage());
     }
+}
+
+/**
+ * Find existing AllProduct or create a new one.
+ * Returns the product_id. Sets $isNew to true if created.
+ */
+private function resolveCatalogProduct(string $name, string $pnumber, Request $request, &$isNew = false): int
+{
+    $isNew = false;
+
+    // Match on name + pnumber to avoid false matches
+    $query = AllProduct::where('name', $name);
+
+    if ($pnumber !== '') {
+        $query->where('pnumber', $pnumber);
+    } else {
+        $query->where(function ($q) {
+            $q->whereNull('pnumber')->orWhere('pnumber', '');
+        });
+    }
+
+    $existing = $query->first();
+
+    if ($existing) {
+        return $existing->product_id;
+    }
+
+    $new = AllProduct::create([
+        'name'     => $name,
+        'pnumber'  => $pnumber,
+        'unit'     => $request->unit ?? 'PCS',
+        'price'    => $request->price,
+        'hsn_code' => $request->nsn_code ?? '',
+    ]);
+
+    $isNew = true;
+    return $new->product_id;
+}
 }

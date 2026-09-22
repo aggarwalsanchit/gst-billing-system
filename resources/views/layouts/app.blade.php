@@ -159,19 +159,16 @@
                         <i class="fas fa-plus-circle"></i> New Bill
                     </a>
                     <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
-                        <i class="fas fa-users"></i> Customers
+                        <i class="fas fa-users"></i> All Customers
                     </a>
                     <a href="{{ route('bills.index') }}" class="nav-link {{ request()->routeIs('bills.index') ? 'active' : '' }}">
                         <i class="fas fa-file-invoice"></i> All Bills
                     </a>
-                    <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
-                        <i class="fas fa-boxes"></i> Inventory
-                    </a>
                     <a href="{{ route('all-products.index') }}" class="nav-link {{ request()->routeIs('all-products.*') ? 'active' : '' }}">
-                        <i class="fas fa-box"></i> Catalog
+                        <i class="fas fa-box"></i> All Products
                     </a>
                     <a href="{{ route('catalog.index') }}" class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}">
-                        <i class="fas fa-book"></i> Product Catalog
+                        <i class="fas fa-book"></i> Catalog PDF
                     </a>
                     <a href="{{ route('stickers.index') }}" class="nav-link {{ request()->routeIs('stickers.*') ? 'active' : '' }}">
                         <i class="fas fa-tags"></i> Stickers
