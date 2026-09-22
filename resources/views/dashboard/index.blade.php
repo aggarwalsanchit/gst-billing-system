@@ -72,6 +72,15 @@
                         <i class="fas fa-list"></i> View All Bills
                     </a>
                 </div>
+                <hr class="my-3">
+
+                <h6 class="text-muted mb-2">
+                    <i class="fas fa-database"></i> Backup
+                </h6>
+                <a href="{{ route('database.export') }}" class="btn btn-outline-dark btn-sm"
+                   onclick="return confirm('Download a full SQL backup of the database?');">
+                    <i class="fas fa-download"></i> Export Full DB (.sql)
+                </a>
             </div>
         </div>
     </div>

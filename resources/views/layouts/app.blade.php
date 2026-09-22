@@ -148,7 +148,7 @@
             <!-- Sidebar -->
             <div class="col-md-2 col-lg-2 sidebar no-print" style="position: sticky; top: 0; height: 100vh; overflow-y: auto;">
                 <div class="brand">
-                    <h4><i class="fas fa-file-invoice"></i> Billing</h4>
+                    <h4><i class="fas fa-file-invoice"></i> Rango</h4>
                     <small class="text-muted">v2.0</small>
                 </div>
                 <nav class="nav flex-column mt-3">

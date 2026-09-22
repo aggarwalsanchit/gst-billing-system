@@ -10,6 +10,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\GstSettingController;
 use App\Http\Controllers\ProductCatalogController;
 use App\Http\Controllers\StickerController;
+use App\Http\Controllers\DatabaseExportController;
 use Illuminate\Support\Facades\Route;
 
 // ========== USER LOGIN ==========
@@ -20,6 +21,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
 // Dashboard
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/database/export', [DatabaseExportController::class, 'export'])
+    ->name('database.export');
 
 // ========== CUSTOMER ROUTES ==========
 Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
